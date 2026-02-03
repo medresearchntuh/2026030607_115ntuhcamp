@@ -2,542 +2,1014 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>115年度台大研究營活動App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>115年度臺大醫療體系研究營</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --primary: #5e4a6f;    /* 質感深紫 */
-            --secondary: #534a55;  /* 深藕色 */
-            --accent-light: #d3b4d3; /* 淺粉紫 */
-            --accent-soft: #c8b7c9;  /* 藕灰色 */
-            --bg-page: #fcfaff;
-            --text-main: #332d35;
-        }
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-        /* 優化字體閱讀性 */
-        body {
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", "PingFang TC", sans-serif;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .tab-content { display: none; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .tab-content.active { display: block; }
-
-        /* 導覽列與標籤 */
-        .nav-item.active { color: var(--primary); font-weight: 800; }
-        .nav-item.active .nav-icon { transform: scale(1.15); color: var(--primary); }
-        .nav-item.active .nav-dot { display: block; }
-        
-        .day-tab.active, .sub-tab.active { 
-            background-color: var(--primary); 
-            color: white; 
-            box-shadow: 0 4px 12px rgba(94, 74, 111, 0.2);
-        }
-
-        /* 強化卡片層次 */
-        .glass-card { 
-            background: #ffffff; 
-            border: 1px solid #ece8ef; 
-            box-shadow: 0 4px 20px rgba(83, 74, 85, 0.04);
-            border-radius: 24px;
-        }
-        
-        .agenda-card {
-            border-left: 6px solid var(--primary);
-            transition: transform 0.2s;
-        }
-        
-        .info-tag { 
-            background-color: #f3f0f5; 
-            font-size: 12px; 
-            padding: 4px 10px; 
-            border-radius: 8px; 
-            color: var(--secondary);
-            font-weight: 600;
-        }
-
-        .room-badge { 
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white; 
-            padding: 4px 12px; 
-            border-radius: 99px; 
-            font-weight: 800; 
-            font-size: 12px; 
-            letter-spacing: 0.5px;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 900;
-            color: var(--primary);
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Sticky Header for Agenda */
-        .agenda-section-header { 
-            position: sticky; 
-            top: 70px; 
-            z-index: 20;
-            background: rgba(252, 250, 255, 0.96);
-            backdrop-filter: blur(10px);
-            padding: 12px 0;
-            margin: 0 -4px;
-        }
-    </style>
-</head>
-<body class="pb-32 max-w-md mx-auto shadow-2xl overflow-x-hidden min-h-screen">
-
-    <!-- Header -->
-    <header class="bg-white/95 backdrop-blur-md sticky top-0 z-50 px-5 py-3 flex items-center justify-between border-b border-gray-100 shadow-sm">
-        <div class="flex items-center gap-3">
-            <img src="https://i.meee.com.tw/AAiaMSR.png" alt="台大醫院 Logo" class="h-10 w-auto">
-            <div class="flex flex-col">
-                <span class="font-black text-[#534a55] text-base leading-tight tracking-tight">臺大醫療體系</span>
-                <span class="text-[10px] text-[#5e4a6f] font-black uppercase tracking-widest">Workshop App</span>
-            </div>
-        </div>
-        <div id="loading-spinner" class="hidden">
-            <div class="w-5 h-5 border-3 border-[#5e4a6f] border-t-transparent rounded-full animate-spin"></div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="px-5 py-6">
-        
-        <!-- 首頁 (Home) -->
-        <div id="home" class="tab-content active">
-            <div class="flex flex-col gap-6">
-                <!-- Main Banner -->
-                <div class="relative rounded-[2.5rem] p-8 shadow-xl overflow-hidden text-white" style="background: linear-gradient(135deg, #5e4a6f 0%, #3e3247 100%);">
-                    <div class="relative z-10">
-                        <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest mb-4 border border-white/30 uppercase">Annual Workshop 2026</div>
-                        <h1 class="text-2xl font-black mb-6 leading-[1.3] tracking-tight">115年度臺大醫療體系<br/>新進主治醫師與<br/>醫事人員研究營</h1>
-                        <div class="space-y-3 opacity-90 text-sm font-medium">
-                            <div class="flex items-center gap-3">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                <span>115年3月6日 (五) - 3月7日 (六)</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path></svg>
-                                <span>宜蘭瓏山林蘇澳度假飯店</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
-                </div>
-
-                <!-- Quick Navigation -->
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="switchTab('agenda')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center gap-4 active:scale-95 transition-all">
-                        <div class="w-16 h-16 bg-[#d3b4d3]/20 text-[#5e4a6f] rounded-2xl flex items-center justify-center">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        </div>
-                        <span class="font-black text-[#534a55] text-base">研究營議程</span>
-                    </button>
-                    <button onclick="switchTab('search')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center gap-4 active:scale-95 transition-all">
-                        <div class="w-16 h-16 bg-[#c8b7c9]/20 text-[#534a55] rounded-2xl flex items-center justify-center">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                        </div>
-                        <span class="font-black text-[#534a55] text-base">學員名冊</span>
-                    </button>
-                </div>
-
-                <div class="bg-blue-50 border border-blue-100 p-5 rounded-3xl flex gap-4 text-sm text-blue-900 leading-relaxed shadow-sm">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-lg">💡</div>
-                    <span class="font-bold pt-1">溫馨提示：請先查閱「行前」頁面，確認集合車次、注意事項與差假規定。</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 議程 (Agenda) -->
-        <div id="agenda" class="tab-content">
-            <div class="flex gap-3 mb-8 bg-[#f0edf2] p-1.5 rounded-2xl shadow-inner">
-                <button onclick="filterAgenda('Day1')" id="btn-day1" class="day-tab active flex-1 py-3.5 rounded-xl font-black text-sm tracking-widest transition-all">DAY 1</button>
-                <button onclick="filterAgenda('Day2')" id="btn-day2" class="day-tab flex-1 py-3.5 rounded-xl font-black text-sm tracking-widest transition-all text-[#a397a5]">DAY 2</button>
-            </div>
-            <div id="agenda-list" class="space-y-10 pb-10">
-                <div class="text-center text-[#c8b7c9] py-20 font-bold italic tracking-wider">正在從雲端讀取議程...</div>
-            </div>
-        </div>
-
-        <!-- 名冊 (Search) -->
-        <div id="search" class="tab-content">
-            <div class="flex gap-1 mb-6 border-b border-[#eee]">
-                <button onclick="switchSearchSubTab('all')" id="subtab-all" class="sub-tab active px-6 py-3 font-black text-sm tracking-wide transition-all border-b-4 border-[#5e4a6f] text-[#5e4a6f]">全部名單</button>
-                <button onclick="switchSearchSubTab('rooms')" id="subtab-rooms" class="sub-tab px-6 py-3 font-black text-sm tracking-wide transition-all border-b-4 border-transparent text-[#a397a5]">住宿分配</button>
-            </div>
-
-            <div id="search-all-container">
-                <div class="bg-white p-2 rounded-3xl shadow-sm border border-gray-100 mb-6 focus-within:ring-4 focus-within:ring-[#5e4a6f]/5 transition-all">
-                    <div class="relative">
-                        <input id="search-input" type="text" placeholder="搜尋姓名或員工編號..." oninput="handleInstantSearch()" class="w-full pl-5 pr-14 py-4 rounded-2xl border-none outline-none text-base font-bold text-[#332d35] placeholder-[#c8b7c9]">
-                        <div class="absolute right-5 top-1/2 -translate-y-1/2 text-[#5e4a6f]">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="px-2 mb-4 flex justify-between items-center text-xs font-black text-[#a397a5] uppercase tracking-widest">
-                    <span>Master Participant List</span>
-                    <span id="search-count" class="bg-gray-100 px-2 py-0.5 rounded">0 Results</span>
-                </div>
-                <div id="participant-list" class="space-y-5">
-                    <div class="text-center text-[#c8b7c9] py-20 font-bold italic tracking-wider">正在載入名冊資料...</div>
-                </div>
-            </div>
-            <div id="search-rooms-container" class="hidden space-y-4">
-                <div id="accommodation-list" class="space-y-4"></div>
-            </div>
-        </div>
-
-        <!-- 行前 (Pre-departure) -->
-        <div id="info" class="tab-content space-y-8">
-            <h2 class="section-title px-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> 行前指南</h2>
-
-            <div class="space-y-6">
-                <!-- 注意事項 -->
-                <div class="bg-white p-7 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                    <h3 class="font-black text-lg text-[#5e4a6f] mb-5 flex items-center gap-3">
-                        <span class="w-1.5 h-6 bg-[#5e4a6f] rounded-full"></span> 注意事項
-                    </h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3"><span class="text-blue-600 font-black">01.</span> <span class="font-bold text-sm">請攜帶健保卡、個人隨身藥品與個人盥洗備品。</span></li>
-                        <li class="flex items-start gap-3"><span class="text-blue-600 font-black">02.</span> <span class="font-bold text-sm">飯店提供冷熱泉設施，請自備泳衣泳帽。</span></li>
-                        <li class="flex items-start gap-3"><span class="text-blue-600 font-black">03.</span> <span class="font-bold text-sm">課程期間請將手機轉為靜音，會場提供充電與 Wifi。</span></li>
-                        <li class="flex items-start gap-3"><span class="text-blue-600 font-black">04.</span> <span class="font-bold text-sm">3 月份宜蘭氣候多變，請攜帶雨具及保暖衣物。</span></li>
-                        <li class="flex items-start gap-3"><span class="text-blue-600 font-black">05.</span> <span class="font-bold text-sm">院方核准公假受訓，上課與結訓須依規定簽到退。</span></li>
-                    </ul>
-                </div>
-
-                <!-- 行車宣導 -->
-                <div class="bg-[#5e4a6f]/5 p-7 rounded-[2.5rem] border border-[#5e4a6f]/10 shadow-sm">
-                    <h3 class="font-black text-lg text-[#5e4a6f] mb-4 flex items-center gap-2">🚌 行車宣導</h3>
-                    <div class="space-y-3">
-                        <p class="text-sm font-bold leading-relaxed text-[#534a55] bg-white/50 p-3 rounded-xl border border-white">1. 請依車次搭乘，將於車上發放房卡與行李吊牌。</p>
-                        <p class="text-sm font-bold leading-relaxed text-[#534a55] bg-white/50 p-3 rounded-xl border border-white">2. 回程人滿即發車，下車點依當日路況而定。</p>
-                    </div>
-                </div>
-
-                <!-- 差假規定 -->
-                <div class="bg-gray-50 p-7 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                    <h3 class="font-black text-lg text-[#534a55] mb-5 flex items-center gap-2">📄 差假規定</h3>
-                    <div class="space-y-6">
-                        <div class="relative pl-4 border-l-4 border-[#c8b7c9]">
-                            <span class="text-[10px] font-black text-[#a397a5] tracking-widest block mb-1 uppercase">上班時間受訓</span>
-                            <p class="text-sm font-bold text-[#534a55]">參訓人員受訓期間如遇上班時間，依規定核予公假前往。</p>
-                        </div>
-                        <div class="relative pl-4 border-l-4 border-[#c8b7c9]">
-                            <span class="text-[10px] font-black text-[#a397a5] tracking-widest block mb-1 uppercase">非上班時間受訓</span>
-                            <p class="text-sm font-bold text-[#534a55]">如於非上班時間受訓則以實際參訓時數辦理公假補休。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 會後 (Post-event) -->
-        <div id="post" class="tab-content space-y-8">
-            <h2 class="section-title px-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg> 會後紀錄</h2>
-            
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                <span class="text-[10px] font-black text-[#a397a5] tracking-widest uppercase mb-2 block">Survey</span>
-                <h3 class="font-black text-xl text-[#5e4a6f] mb-4">滿意度調查問卷</h3>
-                <p class="text-sm font-bold text-[#534a55] mb-8 leading-relaxed">
-                    感謝您的參與！您的回饋與建議將幫助我們將未來的研究營辦得更好。
-                </p>
-                <a href="https://medresearchntuh.github.io/20260307_115/" target="_blank" class="block w-full py-5 bg-[#5e4a6f] text-white text-center rounded-2xl font-black shadow-lg active:scale-95 transition-all text-base tracking-widest uppercase">
-                    立即填寫問卷
-                </a>
-            </div>
-
-            <div class="bg-[#f0edf2]/50 p-8 rounded-[2.5rem] border border-[#ece8ef] border-dashed text-center">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8b7c9" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                </div>
-                <h3 class="font-black text-[#534a55] mb-2">活動照片下載區</h3>
-                <p class="text-xs font-bold text-gray-400 italic leading-relaxed">結訓後 2 週工作天內上傳照片，屆時系統將開放下載連結。</p>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-lg border-t border-gray-100 px-2 py-5 flex justify-between items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] rounded-t-[2.5rem]">
-        <button onclick="switchTab('home')" class="nav-item active flex flex-col items-center gap-1.5 transition-all flex-1" data-tab="home">
-            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span class="text-[10px] font-black">首頁</span>
-            <div class="nav-dot hidden w-1 h-1 bg-[#5e4a6f] rounded-full mt-0.5 mx-auto"></div>
-        </button>
-        <button onclick="switchTab('agenda')" class="nav-item flex flex-col items-center gap-1.5 transition-all text-[#c8b7c9] flex-1" data-tab="agenda">
-            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <span class="text-[10px] font-black">議程</span>
-            <div class="nav-dot hidden w-1 h-1 bg-[#5e4a6f] rounded-full mt-0.5 mx-auto"></div>
-        </button>
-        <button onclick="switchTab('search')" class="nav-item flex flex-col items-center gap-1.5 transition-all text-[#c8b7c9] flex-1" data-tab="search">
-            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-            <span class="text-[10px] font-black">名冊</span>
-            <div class="nav-dot hidden w-1 h-1 bg-[#5e4a6f] rounded-full mt-0.5 mx-auto"></div>
-        </button>
-        <button onclick="switchTab('info')" class="nav-item flex flex-col items-center gap-1.5 transition-all text-[#c8b7c9] flex-1" data-tab="info">
-            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-            <span class="text-[10px] font-black">行前</span>
-            <div class="nav-dot hidden w-1 h-1 bg-[#5e4a6f] rounded-full mt-0.5 mx-auto"></div>
-        </button>
-        <button onclick="switchTab('post')" class="nav-item flex flex-col items-center gap-1.5 transition-all text-[#c8b7c9] flex-1" data-tab="post">
-            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-            <span class="text-[10px] font-black">會後</span>
-            <div class="nav-dot hidden w-1 h-1 bg-[#5e4a6f] rounded-full mt-0.5 mx-auto"></div>
-        </button>
-    </nav>
-
-    <!-- Modal (Profile Detail) -->
-    <div id="modal" class="hidden fixed inset-0 z-[100] flex items-end justify-center bg-[#1a161c]/60 backdrop-blur-md animate-in fade-in duration-300 px-4">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-9 max-h-[85vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-12 duration-500 mb-4">
-            <div class="flex justify-between items-start mb-8">
-                <div>
-                    <h2 id="modal-name" class="text-3xl font-black text-[#332d35] tracking-tight">姓名</h2>
-                    <p id="modal-id" class="text-xs font-black text-[#a397a5] mt-2 tracking-widest uppercase font-mono">Employee ID: 000000</p>
-                </div>
-                <button onclick="closeModal()" class="p-3 bg-gray-100 rounded-2xl text-[#332d35] hover:bg-gray-200 transition-colors">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            <div id="modal-content" class="space-y-1"></div>
-            <button onclick="closeModal()" class="w-full mt-10 py-5 bg-[#5e4a6f] text-white font-black rounded-2xl shadow-lg active:scale-95 transition-all tracking-widest uppercase">Close Profile</button>
-        </div>
-    </div>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <script>
-        // --- 配置區 ---
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec";
-
-        let allAgenda = [];
-        let allParticipants = [];
-
-        async function fetchData(action) {
-            if (!GAS_WEB_APP_URL) return [];
-            document.getElementById('loading-spinner').classList.remove('hidden');
-            try {
-                const response = await fetch(`${GAS_WEB_APP_URL}?action=${action}`);
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                return [];
-            } finally {
-                document.getElementById('loading-spinner').classList.add('hidden');
-            }
-        }
-
-        async function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(el => {
-                if (el.dataset.tab === tabId) el.classList.add('active');
-                else el.classList.remove('active');
-            });
-            
-            if (tabId === 'agenda' && allAgenda.length === 0) await loadAgenda();
-            if (tabId === 'search' && allParticipants.length === 0) await loadParticipants();
-            window.scrollTo(0, 0);
-        }
-
-        async function loadAgenda() {
-            allAgenda = await fetchData('getAgenda');
-            filterAgenda('Day1');
-        }
-
-        function filterAgenda(day) {
-            const list = document.getElementById('agenda-list');
-            document.getElementById('btn-day1').classList.toggle('active', day === 'Day1');
-            document.getElementById('btn-day2').classList.toggle('active', day === 'Day2');
-            
-            const filtered = allAgenda.filter(item => item.Day === day);
-            if (filtered.length === 0) {
-                list.innerHTML = `<div class="text-center text-[#c8b7c9] py-20 font-bold italic">雲端尚無議程資料</div>`;
-                return;
-            }
-
-            // 按 Section 分組
-            const sections = [];
-            filtered.forEach(item => {
-                let section = sections.find(s => s.name === item.Section);
-                if (!section) {
-                    section = { name: item.Section, moderator: item.Moderator, moderatorDept: item.ModeratorDept, items: [] };
-                    sections.push(section);
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#5e4a6f',
+                        secondary: '#8e7b9f',
+                        accent: '#d3b4d3',
+                        surface: '#ffffff',
+                        background: '#f4f6f8',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(94, 74, 111, 0.1)',
+                        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
+                        'floating': '0 10px 30px -5px rgba(94, 74, 111, 0.15)',
+                    }
                 }
-                section.items.push(item);
-            });
+            }
+        }
+    </script>
 
-            list.innerHTML = sections.map(sec => `
-                <div class="space-y-6">
-                    <div class="agenda-section-header flex flex-col gap-1 border-b-2 border-[#5e4a6f]/20 pb-2">
-                        <div class="flex items-center gap-3">
-                            <span class="w-2 h-6 bg-[#5e4a6f] rounded-full"></span>
-                            <h3 class="font-black text-[#5e4a6f] text-base tracking-wide uppercase">${sec.name}</h3>
-                        </div>
-                        ${sec.moderator ? `
-                            <div class="flex flex-wrap items-center gap-2 mt-2">
-                                <span class="text-[10px] bg-[#d3b4d3]/30 px-2 py-0.5 rounded-lg border border-[#d3b4d3]/50 font-black text-[#5e4a6f] tracking-tight">主持單位: ${sec.moderatorDept || '--'}</span>
-                                <span class="text-xs font-black text-[#534a55] italic tracking-tight">主持人: ${sec.moderator}</span>
-                            </div>
-                        ` : ''}
+    <style>
+        body {
+            background-color: #f4f6f8;
+            color: #4a4a4a;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-enter {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        /* Loading Spinner Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #5e4a6f;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .pt-safe { padding-top: env(safe-area-inset-top); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // --- 資料來源: 議程 (保持不變) ---
+        const AGENDA_DATA = [
+          {
+            date: "3月6日 (週五)",
+            label: "Day 1",
+            items: [
+              { time: "08:00", endTime: "10:00", topic: "總院東址集合出發", location: "總院東址 -> 飯店", type: "logistic" },
+              {
+                section: "開幕與致詞",
+                host: "林頌然 教授",
+                items: [
+                  { time: "10:00", endTime: "10:30", topic: "報到與開幕式", speaker: "全體人員" },
+                  { time: "10:30", endTime: "11:00", topic: "院長室長官致詞 I", speaker: "高嘉宏 副院長", dept: "院長室" }
+                ]
+              },
+              {
+                section: "專題演講 I",
+                host: "林頌然 教授",
+                items: [
+                  { time: "11:00", endTime: "11:30", topic: "醫師與醫事人員科學家之倫理素養", speaker: "蔡甫昌 主任", dept: "倫理中心" },
+                  { time: "11:30", endTime: "12:00", topic: "教學部專題分享", speaker: "楊志偉 副主任", dept: "教學部" }
+                ]
+              },
+              { time: "12:00", endTime: "13:30", topic: "午餐時間", location: "住宿大樓 2F 餐廳", type: "food" },
+              {
+                section: "專題演講 II",
+                host: "楊鎧鍵 教授",
+                items: [
+                  { time: "13:30", endTime: "13:55", topic: "教學部專題分享", speaker: "陳慧玲 主任", dept: "教學部" },
+                  { time: "13:55", endTime: "14:20", topic: "個人研究與出國進修分享", speaker: "鐘桂彬 助理教授", dept: "檢驗醫學部" },
+                  { time: "14:20", endTime: "14:45", topic: "如何發起及執行臨床試驗？", speaker: "劉志銘 教授", dept: "內科部" },
+                  { time: "14:45", endTime: "15:10", topic: "透過生醫設計流程解決臨床問題", speaker: "黃博浩 副教授", dept: "外科部" },
+                  { time: "15:10", endTime: "15:35", topic: "臨床與基礎研究的選擇", speaker: "林頌然 主任", dept: "醫學研究部" },
+                  { time: "15:35", endTime: "15:45", topic: "院長室長官致詞 II", speaker: "余忠仁 院長", dept: "院長室" }
+                ]
+              },
+              { time: "15:45", endTime: "16:00", topic: "中場休息 (Coffee Break)", type: "break" },
+              {
+                section: "專題演講 III",
+                title: "醫療結合研究的實踐與突破",
+                host: "李宜家 教授",
+                items: [
+                  { time: "16:00", endTime: "16:20", topic: "護理部研究分享", speaker: "鄭靜宜 護理師", dept: "護理部" },
+                  { time: "16:20", endTime: "16:40", topic: "檢驗醫學部研究分享", speaker: "陳怡婷 醫檢師", dept: "檢驗醫學部" },
+                  { time: "16:40", endTime: "17:00", topic: "藥劑部研究分享", speaker: "林欣儀 藥師", dept: "藥劑部" },
+                  { time: "17:00", endTime: "17:30", topic: "讓種子發光：總分院育苗計畫分享", speaker: "楊偉勛 教授、李志國 助理教授" }
+                ]
+              },
+              { time: "17:30", endTime: "18:30", topic: "Check in 辦理住房", location: "飯店櫃檯", type: "logistic" },
+              { time: "18:30", endTime: "20:30", topic: "歡迎晚宴", location: "宴會廳 (圓桌晚宴)", type: "food" }
+            ]
+          },
+          {
+            date: "3月7日 (週六)",
+            label: "Day 2",
+            items: [
+              { time: "07:30", endTime: "09:00", topic: "早餐與自由活動", location: "住宿大樓 2F 餐廳", type: "food" },
+              {
+                section: "專題演講 IV",
+                host: "楊鎧鍵 教授",
+                items: [
+                  { time: "09:00", endTime: "09:20", topic: "院內研究資源－共同研究室與研究服務核心", speaker: "蔡芷季 組長" },
+                  { time: "09:20", endTime: "09:40", topic: "院內計畫簡介懶人包", speaker: "楊鎧鍵 組長" },
+                  { time: "09:40", endTime: "10:00", topic: "使用醫療整合資料創新研發", speaker: "李宜家 副主任" },
+                  { time: "10:00", endTime: "11:00", topic: "生成式 AI 輔助研究懶人包", speaker: "莊又丞 資訊工程師" },
+                  { time: "11:00", endTime: "11:30", topic: "研究傳播工具：視覺化設計與可近用性評估", speaker: "張育瑄 主治醫師" }
+                ]
+              },
+              { time: "11:30", endTime: "13:00", topic: "午餐時間", location: "住宿大樓 2F 餐廳", type: "food" },
+              {
+                section: "專題演講 V",
+                host: "楊鎧鍵 教授",
+                items: [
+                  { time: "13:00", endTime: "13:30", topic: "主治醫師升等與經驗分享", speaker: "林孟暐 教授" },
+                  { time: "13:30", endTime: "14:00", topic: "科研創新 × 專利思維", speaker: "楊宗霖 副研發長" }
+                ]
+              },
+              {
+                section: "綜合討論 & 閉幕",
+                host: "林頌然 主任",
+                items: [
+                  { time: "14:00", endTime: "14:30", topic: "綜合討論 Q&A", speaker: "林頌然 主任 (引言)" },
+                  { time: "14:30", endTime: "15:00", topic: "閉幕、大合照與賦歸", speaker: "全體人員" }
+                ]
+              }
+            ]
+          }
+        ];
+
+        // --- 資料來源: 名冊 (Google Sheet 欄位對應: A-M) ---
+        const INITIAL_ROSTER_DATA = [
+          { category: "受邀長官", hospital: "總院", id: "002904", name: "余忠仁", dept: "院長室", title: "院長", bus: "自理", room: "不住宿", food: "不吃", table: "主5", diet: "葷", size: "L", extra_pay: "" },
+          { category: "受邀長官", hospital: "總院", id: "002849", name: "高嘉宏", dept: "院長室", title: "副院長", bus: "自理", room: "不住宿", food: "D1/不晚", table: "不吃晚宴", diet: "葷", size: "L", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "007802", name: "李宜家", dept: "醫學研究部", title: "教授", bus: "B01", room: "C-12", food: "D1/D2", table: "A-01", diet: "葷", size: "XL", extra_pay: "3900" },
+          { category: "受邀講師", hospital: "總院", id: "018768", name: "林孟暐", dept: "外科部", title: "教授", bus: "自理", room: "B-04-1", food: "D1/D2", table: "A-02", diet: "葷", size: "XL", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "102067", name: "林欣儀", dept: "藥劑部", title: "藥師", bus: "B06", room: "不住宿", food: "不吃", table: "不吃晚宴", diet: "不吃", size: "S", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "009015", name: "林頌然", dept: "醫學研究部", title: "教授", bus: "A01", room: "C-14", food: "D1/D2", table: "A-03", diet: "葷", size: "M", extra_pay: "3900" },
+          { category: "受邀講師", hospital: "總院", id: "112264", name: "張育瑄", dept: "教學部", title: "主治醫師", bus: "B02", room: "C-04", food: "D1/D2", table: "B-01", diet: "葷", size: "M", extra_pay: "" },
+          { category: "參加學員", hospital: "新竹", id: "G04420", name: "黃亮恩", dept: "內科部", title: "主治醫師", bus: "B12", room: "C-21", food: "D1/D2", table: "G-03", diet: "葷", size: "L", extra_pay: "3900" },
+          { category: "參加學員", hospital: "雲林", id: "Y05773", name: "黃柏翰", dept: "耳鼻喉部", title: "主治醫師", bus: "A09", room: "B-08-2", food: "D1/D2", table: "G-04", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "癌醫", id: "A03182", name: "楊向國", dept: "婦產部", title: "主治醫師", bus: "C26", room: "A-14-1", food: "D1/D2", table: "G-05", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "癌醫", id: "A01092", name: "葉政亞", dept: "影像醫學部", title: "醫事放射師", bus: "自理", room: "不住宿", food: "D1", table: "G-06", diet: "葷", size: "2XL", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "030405", name: "葉慧英", dept: "基因醫學部", title: "醫事檢驗師", bus: "C08", room: "A-02-2", food: "D1/D2", table: "G-07", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "113492", name: "廖愷欣", dept: "藥劑部", title: "藥師", bus: "C20", room: "A-11-1", food: "D1/D2", table: "G-08", diet: "葷", size: "M", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "030605", name: "劉彥德", dept: "影像醫學部", title: "醫事放射師", bus: "C04", room: "B-09-1", food: "D1/D2", table: "G-09", diet: "葷", size: "2XL", extra_pay: "" }
+        ];
+
+        // --- 資料來源: 線上課程 (AI) ---
+        // 排序：由近到遠 (日期降序)
+        const COURSES_DATA = [
+            {
+                date: "115/01/29",
+                topic: "生成式 AI 在生醫資料分析的應用：效率、再現性與資料安全",
+                unit: "長庚大學資訊工程系",
+                speaker: "李季青 副教授",
+                tms: "200332"
+            },
+            {
+                date: "114/10/02",
+                topic: "加速研究，繁瑣的部分用開源工具搭配AI搞定",
+                unit: "台大醫院資訊室",
+                speaker: "莊又丞 資訊工程師",
+                tms: "194653"
+            },
+            {
+                date: "114/09/26",
+                topic: "淺談AI世代的學術工具：從文獻回顧到分析撰寫",
+                unit: "台大醫院教學部",
+                speaker: "劉政亨 醫師",
+                tms: "194460"
+            },
+            {
+                date: "114/09/16",
+                topic: "與AI共研未來：學術研究的資料搜尋、新素養與新倫理",
+                unit: "臺灣大學圖書館學科服務組",
+                speaker: "范蔚敏 組員",
+                tms: "193928"
+            },
+            {
+                date: "114/04/15",
+                topic: "論文寫作用AI：省力還是幫倒忙",
+                unit: "台大醫院 醫學研究部",
+                speaker: "黃舒宜 助理研究員",
+                tms: "187276"
+            }
+        ];
+
+        // --- 資料來源: 線上課程 (論文與期刊) ---
+        // 排序：由近到遠 (日期降序)
+        const JOURNAL_COURSES_DATA = [
+            {
+                date: "113/03/22",
+                topic: "與期刊編輯面對面系列講座-How to publish with Nature Portfolio",
+                unit: "Nature",
+                speaker: "Laurie Dempsey、Ching-yu Huang",
+                tms: "171553"
+            },
+            {
+                date: "110/10/19",
+                topic: "Open access與投稿期刊選擇",
+                unit: "台大醫院醫學研究部",
+                speaker: "黃舒宜 助理研究員",
+                tms: "159013"
+            },
+            {
+                date: "110/04/22",
+                topic: "論文寫作新手村: 基本寫作技巧及常見問題解析",
+                unit: "台大醫院醫學研究部",
+                speaker: "黃舒宜 助理研究員",
+                tms: "85232"
+            }
+        ];
+
+        // --- SVG 圖示 (Pure SVG with <g>) ---
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const getIconContent = (iconName) => {
+                switch (iconName) {
+                    case 'Home': return (<g><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></g>);
+                    case 'Calendar': return (<g><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></g>);
+                    case 'Search': return (<g><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></g>);
+                    case 'MapPin': return (<g><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></g>);
+                    case 'Clock': return (<g><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></g>);
+                    case 'User': return (<g><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></g>);
+                    case 'Users': return (<g><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></g>);
+                    case 'ChevronDown': return <path d="m6 9 6 6 6-6" />;
+                    case 'ChevronUp': return <path d="m18 15-6-6-6 6" />;
+                    case 'Bus': return (<g><path d="M8 6v6" /><path d="M15 6v6" /><path d="M2 12h19.6" /><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" /><circle cx="7" cy="18" r="2" /><path d="M9 18h5" /><circle cx="16" cy="18" r="2" /></g>);
+                    case 'Bed': return (<g><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></g>);
+                    case 'Utensils': return (<g><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></g>);
+                    case 'Phone': return (<g><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></g>);
+                    case 'Mail': return (<g><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></g>);
+                    case 'Info': return (<g><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="16" y2="12" /><line x1="12" x2="12.01" y1="8" y2="8" /></g>);
+                    case 'FileText': return (<g><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></g>);
+                    case 'Camera': return (<g><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></g>);
+                    case 'ExternalLink': return (<g><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" x2="21" y1="14" y2="3" /></g>);
+                    case 'AlertCircle': return (<g><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></g>);
+                    case 'Shield': return (<g><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></g>);
+                    case 'Star': return (<g><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></g>);
+                    case 'Coffee': return (<g><path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" x2="6" y1="1" y2="4" /><line x1="10" x2="10" y1="1" y2="4" /><line x1="14" x2="14" y1="1" y2="4" /></g>);
+                    case 'Map': return (<g><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" x2="8" y1="2" y2="18" /><line x1="16" x2="16" y1="6" y2="22" /></g>);
+                    case 'Grid': return (<g><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></g>);
+                    case 'Video': return (<g><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></g>);
+                    case 'Beaker': return (<g><path d="M4.5 3h15" /><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3" /><path d="M6 14h12" /></g>);
+                    default: return <circle cx="12" cy="12" r="10" />;
+                }
+            };
+
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    {getIconContent(name)}
+                </svg>
+            );
+        };
+
+        // --- 頁面元件 ---
+
+        // 1. 頂部標題列
+        const TopBar = () => (
+            <div className="fixed top-0 w-full max-w-md z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300">
+                <div className="px-5 py-3 flex items-center gap-3">
+                    <img src="https://i.meee.com.tw/AAiaMSR.png" alt="Logo" className="w-9 h-9 object-contain drop-shadow-sm" />
+                    <div className="flex flex-col">
+                        <span className="text-[11px] text-gray-500 font-bold tracking-wider uppercase">臺大醫療體系</span>
+                        <span className="text-sm font-bold text-[#5e4a6f] leading-none">115年度研究營</span>
                     </div>
-                    <div class="space-y-5">
-                        ${sec.items.map(item => `
-                            <div class="bg-white p-6 rounded-3xl border border-[#ece8ef] shadow-sm animate-in fade-in slide-in-from-left-4 agenda-card">
-                                <div class="text-[11px] font-black text-[#5e4a6f]/70 mb-2 uppercase tracking-widest">${item.Time}</div>
-                                <div class="font-black text-[#332d35] text-lg leading-snug mb-3">${item.Title}</div>
-                                ${item.Speaker ? `
-                                    <div class="flex flex-wrap items-center gap-2 mb-2">
-                                        <span class="bg-[#5e4a6f] text-white px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">Speaker</span>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[11px] font-black text-[#a397a5] bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">[${item.SpeakerDept || '單位待定'}]</span>
-                                            <span class="text-sm font-bold text-[#332d35] underline underline-offset-4 decoration-2 decoration-[#d3b4d3]">${item.Speaker}</span>
+                </div>
+            </div>
+        );
+
+        // 2. 首頁
+        const HomeView = ({ onChangeTab }) => (
+            <div className="p-5 pt-20 pb-28 space-y-6 animate-enter">
+                {/* 1. Hero Card - 漸層邀請函風格 */}
+                <div className="relative rounded-3xl overflow-hidden shadow-floating group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#5e4a6f] via-[#705a82] to-[#453652] transition-transform duration-500 group-hover:scale-105"></div>
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-[#d3b4d3] rounded-full blur-[60px] opacity-20 -mr-16 -mt-16"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full blur-[50px] opacity-10 -ml-10 -mb-10"></div>
+                    
+                    <div className="relative z-10 p-7 text-white">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full backdrop-blur-md border border-white/20 text-[10px] font-bold tracking-wider mb-4 shadow-sm">
+                            <Icon name="Star" size={12} />
+                            活動資訊
+                        </div>
+                        <h2 className="text-2xl font-bold mb-6 leading-tight drop-shadow-md">
+                            115年度臺大醫療體系<br />
+                            <span className="text-[#eaddf0]">新進主治醫師與<br/>醫事人員研究營</span>
+                        </h2>
+                        
+                        <div className="space-y-3.5">
+                            <div className="flex items-start gap-3.5">
+                                <div className="p-1.5 rounded-full bg-white/10 backdrop-blur-sm"><Icon name="Clock" size={16} className="text-[#d3b4d3]" /></div>
+                                <div>
+                                    <div className="text-[11px] text-[#d3b4d3] font-bold uppercase tracking-wide">時間</div>
+                                    <div className="text-sm font-medium opacity-95">115年3月6日 (五) ~ 3月7日 (六)</div>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3.5">
+                                <div className="p-1.5 rounded-full bg-white/10 backdrop-blur-sm"><Icon name="MapPin" size={16} className="text-[#d3b4d3]" /></div>
+                                <div className="flex-1">
+                                    <div className="text-[11px] text-[#d3b4d3] font-bold uppercase tracking-wide">地點</div>
+                                    <a 
+                                        href="https://www.google.com/maps/search/?api=1&query=瓏山林蘇澳冷熱泉度假飯店" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-sm font-medium opacity-95 hover:underline decoration-[#d3b4d3] underline-offset-2 flex items-center gap-1"
+                                    >
+                                        宜蘭縣蘇澳鎮瓏山林蘇澳冷熱泉度假飯店
+                                        <Icon name="ExternalLink" size={12} className="opacity-80" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. Warning Card - 柔和警示 */}
+                <div className="bg-red-50/80 backdrop-blur-sm border border-red-100 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+                    <div className="mt-0.5 text-red-500 bg-white p-1 rounded-full shadow-sm"><Icon name="Shield" size={16} /></div>
+                    <div>
+                        <h4 className="text-xs font-bold text-red-600 mb-0.5">內部閱覽注意</h4>
+                        <p className="text-xs text-red-500 leading-relaxed opacity-90">此網頁含參訓學員個資，僅供院內相關人員閱覽，請勿外流。</p>
+                    </div>
+                </div>
+
+                {/* 3. Target Audience - 簡潔圖文 */}
+                <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-[#f4eff6] rounded-bl-full opacity-50"></div>
+                    <div className="flex items-center gap-2 mb-3 relative z-10">
+                        <div className="w-8 h-8 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center shadow-inner">
+                            <Icon name="Users" size={16} />
+                        </div>
+                        <h3 className="font-bold text-[#5e4a6f] text-base">活動對象</h3>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed pl-2 border-l-[3px] border-[#d3b4d3]">
+                        總、分院一年內新進主治醫師與醫事科部推薦具研究潛力之醫事研究人員
+                    </p>
+                </div>
+
+                {/* 4. Quick Actions - 互動按鈕 */}
+                <div className="grid grid-cols-2 gap-4">
+                    <button onClick={() => onChangeTab('agenda')} className="group bg-white p-4 rounded-2xl shadow-card border border-gray-50 flex flex-col items-center gap-3 transition-all active:scale-95 hover:shadow-lg hover:border-[#d3b4d3]">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#f4eff6] to-white flex items-center justify-center text-[#5e4a6f] shadow-inner group-hover:scale-110 transition-transform">
+                            <Icon name="Calendar" size={24} />
+                        </div>
+                        <span className="font-bold text-gray-700 text-sm group-hover:text-[#5e4a6f]">查看議程</span>
+                    </button>
+                    <button onClick={() => onChangeTab('roster')} className="group bg-white p-4 rounded-2xl shadow-card border border-gray-50 flex flex-col items-center gap-3 transition-all active:scale-95 hover:shadow-lg hover:border-[#d3b4d3]">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#f4eff6] to-white flex items-center justify-center text-[#5e4a6f] shadow-inner group-hover:scale-110 transition-transform">
+                            <Icon name="Search" size={24} />
+                        </div>
+                        <span className="font-bold text-gray-700 text-sm group-hover:text-[#5e4a6f]">查詢名冊</span>
+                    </button>
+                </div>
+
+                {/* 5. Organizer Info - 乾淨列表 */}
+                <div className="pt-4 border-t border-gray-200">
+                    <div className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">Contact Information</div>
+                    <div className="bg-white rounded-2xl p-5 shadow-card border border-gray-50 space-y-3">
+                        <div className="font-bold text-[#5e4a6f] pb-2 border-b border-gray-100 flex items-center gap-2">
+                            <span className="w-1 h-4 bg-[#5e4a6f] rounded-full"></span>
+                            台大醫院醫學研究部
+                        </div>
+                        <div className="space-y-2.5">
+                            <div className="flex items-center gap-3 text-sm text-gray-600">
+                                <div className="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center shrink-0"><Icon name="User" size={14} className="text-gray-400" /></div>
+                                <span>承辦人員：規劃訓練組 陳巧瑜管理師</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-gray-600">
+                                <div className="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center shrink-0"><Icon name="Phone" size={14} className="text-gray-400" /></div>
+                                <span>電話：02-23123456 分機 263254</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // 3. 議程頁
+        const AgendaView = () => {
+            const [day, setDay] = useState(0);
+            return (
+                <div className="pb-28 pt-16 animate-enter min-h-screen bg-gray-50">
+                    {/* Sticky Tabs */}
+                    <div className="sticky top-[60px] z-40 bg-gray-50/95 backdrop-blur px-4 pb-2 pt-2">
+                        <div className="bg-gray-200/80 p-1 rounded-2xl flex relative">
+                            {AGENDA_DATA.map((d, i) => (
+                                <button 
+                                    key={i} 
+                                    onClick={() => setDay(i)} 
+                                    className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 relative z-10 ${day === i ? 'text-[#5e4a6f] shadow-sm bg-white' : 'text-gray-500 hover:text-gray-700'}`}
+                                >
+                                    <span className="block leading-none mb-0.5">{d.label}</span>
+                                    <span className="text-[10px] font-normal opacity-70">{d.date}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="px-5 py-4 space-y-5">
+                        {AGENDA_DATA[day].items.map((item, index) => (
+                            <AgendaItem key={index} block={item} isLast={index === AGENDA_DATA[day].items.length - 1} />
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const AgendaItem = ({ block, isLast }) => {
+            const [expanded, setExpanded] = useState(false);
+            
+            // Timeline dot logic
+            const Dot = () => (
+                <div className="absolute left-0 top-0 bottom-0 flex flex-col items-center w-6">
+                    <div className={`w-3 h-3 rounded-full border-2 z-10 ${block.section ? 'bg-[#5e4a6f] border-[#5e4a6f]' : 'bg-white border-gray-300'}`}></div>
+                    {!isLast && <div className="w-0.5 flex-1 bg-gray-200 mt-1"></div>}
+                </div>
+            );
+
+            if (block.section) {
+                return (
+                    <div className="relative pl-8">
+                        <Dot />
+                        <div className="bg-white rounded-2xl shadow-card border border-gray-50 overflow-hidden transition-all duration-300 hover:shadow-md">
+                            <div className="p-4 flex justify-between items-start cursor-pointer active:bg-gray-50/50" onClick={() => setExpanded(!expanded)}>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <span className="bg-[#5e4a6f] text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm tracking-wide">專題演講</span>
+                                        {block.title && <span className="text-xs text-gray-500 font-medium line-clamp-1">{block.title}</span>}
+                                    </div>
+                                    <h3 className="font-bold text-gray-800 text-lg mb-1.5 leading-tight">{block.section}</h3>
+                                    <p className="text-xs text-gray-500 flex items-center gap-1.5 bg-gray-50 inline-block px-2 py-1 rounded-lg">
+                                        <Icon name="User" size={12} /> 主持：<span className="font-medium text-gray-700">{block.host}</span>
+                                    </p>
+                                </div>
+                                <div className={`text-gray-400 p-1 rounded-full bg-gray-50 transition-transform duration-300 ${expanded ? 'rotate-180 bg-gray-100' : ''}`}>
+                                    <Icon name="ChevronDown" size={18} />
+                                </div>
+                            </div>
+                            
+                            {/* Expandable Content */}
+                            <div className={`bg-[#faf9fb] border-t border-gray-100 transition-all duration-500 ease-in-out ${expanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="p-4 space-y-4">
+                                    {block.items.map((sub, idx) => (
+                                        <div key={idx} className="flex gap-3 relative">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#d3b4d3] mt-2 shrink-0"></div>
+                                            <div>
+                                                <div className="flex items-baseline gap-2 mb-0.5">
+                                                    <span className="text-xs font-bold text-[#5e4a6f] bg-white px-1.5 py-0.5 rounded border border-[#f4eff6] shadow-sm">{sub.time}</span>
+                                                    <span className="text-[10px] text-gray-400">至 {sub.endTime}</span>
+                                                </div>
+                                                <div className="text-sm font-bold text-gray-800 mb-1 leading-snug">{sub.topic}</div>
+                                                {sub.speaker && (
+                                                    <div className="text-xs text-gray-500 flex items-center gap-1.5 mt-1">
+                                                        <span className="w-4 h-0.5 bg-gray-300 rounded-full"></span>
+                                                        {sub.speaker} {sub.dept && <span className="text-gray-400">({sub.dept})</span>}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Normal Item Styling
+            let iconName = "Clock"; 
+            let itemBg = "bg-white";
+            let iconBg = "bg-gray-100 text-gray-500";
+            
+            if (block.type === 'food') { iconName = "Utensils"; iconBg = "bg-orange-100 text-orange-500"; }
+            if (block.type === 'logistic') { iconName = "Bus"; iconBg = "bg-blue-100 text-blue-500"; }
+            if (block.type === 'break') { iconBg = "bg-[#f4eff6] text-[#5e4a6f]"; itemBg = "bg-[#fcfafc]"; }
+
+            return (
+                <div className="relative pl-8">
+                    <Dot />
+                    <div className={`${itemBg} rounded-2xl p-4 flex gap-4 items-center shadow-card border border-gray-50`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg} shadow-inner`}>
+                            <Icon name={iconName} size={20} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-baseline mb-1">
+                                <span className="font-bold text-gray-800 text-base truncate pr-2">{block.topic}</span>
+                                <span className="text-xs font-bold text-gray-400 whitespace-nowrap">{block.time}</span>
+                            </div>
+                            {block.location && (
+                                <div className="text-xs text-gray-500 flex items-center gap-1.5 truncate">
+                                    <Icon name="MapPin" size={12} className="shrink-0" /> {block.location}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // 4. 名冊頁
+        const RosterView = () => {
+            const [search, setSearch] = useState("");
+            const [tab, setTab] = useState("all");
+            // 替換為真實資料
+            const [rosterData, setRosterData] = useState([]); // INITIAL_ROSTER_DATA for testing
+            const [loading, setLoading] = useState(true);
+
+            // Fetch data from GAS
+            useEffect(() => {
+                fetch('https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec') // Replace with YOUR_GAS_URL
+                    .then(res => res.json())
+                    .then(data => {
+                         setRosterData(data);
+                         setLoading(false);
+                    })
+                    .catch(err => {
+                        console.error('Failed to fetch roster:', err);
+                        setLoading(false);
+                        // Fallback to initial data if fetch fails (optional)
+                        setRosterData(INITIAL_ROSTER_DATA); 
+                    });
+            }, []);
+
+            const filtered = useMemo(() => {
+                let res = rosterData;
+                if (tab === 'accommodation') {
+                    res = res.filter(p => p.room && p.room !== '不住宿' && p.room !== '');
+                    res.sort((a, b) => a.room.localeCompare(b.room));
+                }
+                if (search) {
+                    const lower = search.toLowerCase();
+                    res = res.filter(p => p.name.includes(search) || p.id.includes(search) || (p.dept && p.dept.includes(search)));
+                }
+                return res;
+            }, [search, tab, rosterData]);
+
+            return (
+                <div className="pb-28 pt-16 animate-enter min-h-screen">
+                    <div className="sticky top-[60px] z-30 bg-[#f8f9fa] px-4 pb-2 pt-2">
+                        {/* Search Input - Floating Style */}
+                        <div className="relative shadow-floating rounded-2xl bg-white mb-4">
+                            <div className="absolute left-4 top-3.5 text-[#5e4a6f] opacity-50"><Icon name="Search" size={20} /></div>
+                            <input 
+                                type="text" 
+                                placeholder="搜尋姓名、員工編號..." 
+                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-none ring-1 ring-transparent focus:ring-2 focus:ring-[#d3b4d3] outline-none text-gray-700 bg-transparent transition-all placeholder-gray-400" 
+                                value={search} 
+                                onChange={e => setSearch(e.target.value)} 
+                            />
+                        </div>
+                        
+                        {/* Filter Tabs */}
+                        <div className="flex bg-gray-200/80 p-1 rounded-xl mb-1">
+                            <button onClick={() => setTab('all')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${tab === 'all' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>全部名冊</button>
+                            <button onClick={() => setTab('accommodation')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${tab === 'accommodation' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>住宿名單</button>
+                        </div>
+                    </div>
+
+                    <div className="px-4 space-y-3 mt-2">
+                        {loading ? (
+                            <div className="flex justify-center items-center py-20">
+                                <div className="loader"></div>
+                            </div>
+                        ) : (
+                            <>
+                                {filtered.map((p, i) => <RosterCard key={i} person={p} />)}
+                                {filtered.length === 0 && (
+                                    <div className="text-center py-12">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300"><Icon name="Search" size={30} /></div>
+                                        <p className="text-gray-400 font-medium">沒有找到符合的資料</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const RosterCard = ({ person }) => {
+            const [expanded, setExpanded] = useState(false);
+            return (
+                <div className="bg-white p-5 rounded-2xl shadow-card border border-gray-50 flex flex-col gap-4 transition-all duration-200 active:scale-[0.98]" onClick={() => setExpanded(!expanded)}>
+                    <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f4eff6] to-white flex items-center justify-center text-[#5e4a6f] font-bold text-lg border border-[#f4eff6]">
+                                {person.name[0]}
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                                    {person.name}
+                                    <span className="text-[10px] font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full border border-gray-200">{person.title}</span>
+                                </h3>
+                                <p className="text-xs text-gray-400 font-medium mt-0.5">{person.hospital} • {person.dept}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex flex-col gap-1.5 items-end">
+                            {person.diet !== '葷' && <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-md border border-green-100 shadow-sm flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>素食</span>}
+                            {person.extra_pay && <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md border border-red-100 shadow-sm flex items-center gap-1"><span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>補差額</span>}
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2">
+                        <InfoItem icon="Bus" label="交通" value={person.bus} />
+                        <InfoItem icon="Bed" label="房號" value={person.room} highlight={person.room !== '不住宿'} />
+                        <InfoItem icon="Utensils" label="晚宴" value={person.table} />
+                    </div>
+
+                    {expanded && (
+                        <div className="mt-1 pt-4 border-t border-dashed border-gray-200 animate-enter">
+                            <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs text-gray-600">
+                                <DetailRow label="員工編號" value={person.id} />
+                                <DetailRow label="身分類別" value={person.category} />
+                                <DetailRow label="用餐調查" value={person.food} />
+                                <DetailRow label="衣服尺寸" value={person.size} highlight />
+                                {person.extra_pay && <div className="col-span-2 text-red-500 font-bold bg-red-50 p-2 rounded-lg text-center mt-1">需補差額：${person.extra_pay}</div>}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const InfoItem = ({ icon, label, value, highlight }) => (
+            <div className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center transition-colors ${highlight ? 'bg-[#fcfafc] border-[#f4eff6]' : 'bg-gray-50 border-gray-100'}`}>
+                <Icon name={icon} size={16} className="text-[#5e4a6f] mb-1.5 opacity-80" />
+                <span className="text-[10px] text-gray-400 mb-0.5">{label}</span>
+                <span className="text-xs font-bold text-gray-700 line-clamp-1">{value}</span>
+            </div>
+        );
+
+        const DetailRow = ({ label, value, highlight }) => (
+            <div className="flex justify-between border-b border-gray-50 pb-1">
+                <span className="text-gray-400">{label}</span>
+                <span className={`font-medium ${highlight ? 'text-[#5e4a6f]' : 'text-gray-700'}`}>{value}</span>
+            </div>
+        );
+
+        // 5. 行前須知
+        const PreTripView = () => (
+            <div className="p-5 pt-20 pb-28 animate-enter space-y-6">
+                <InfoSection icon="Info" title="注意事項">
+                    <ul className="list-decimal list-outside ml-4 space-y-2 text-sm text-gray-600 leading-relaxed">
+                        <li>請攜帶健保卡、個人隨身藥品與個人盥洗備品。</li>
+                        <li>飯店提供冷熱泉設施，請自備泳衣泳帽。</li>
+                        <li>課程期間請將手機轉為靜音，會場提供充電與Wifi。</li>
+                        <li>3月份宜蘭氣候多變，請攜帶雨具及保暖衣物。</li>
+                        <li>院方核准公假受訓，上課與結訓須依規定簽到退。</li>
+                    </ul>
+                </InfoSection>
+
+                <InfoSection icon="Bus" title="行車宣導">
+                    <ul className="list-decimal list-outside ml-4 space-y-2 text-sm text-gray-600 leading-relaxed">
+                        <li>請依車次搭乘，下於車上發放房卡與行李吊牌。</li>
+                        <li>回程人滿即發車，下車點依當日路況而定。</li>
+                    </ul>
+                </InfoSection>
+
+                <InfoSection icon="FileText" title="差假規定">
+                    <div className="space-y-4 text-sm text-gray-600">
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                            <span className="font-bold block text-gray-800 mb-1">1. 上班時間受訓</span>
+                            參訓人員受訓期間如遇上班時間，依規定核予公假前往。
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                            <span className="font-bold block text-gray-800 mb-1">2. 非上班時間受訓</span>
+                            如於非上班時間受訓則以實際參訓時數辦理公假補休。
+                        </div>
+                    </div>
+                </InfoSection>
+            </div>
+        );
+
+        const InfoSection = ({ icon, title, children }) => (
+            <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                <h3 className="font-bold text-[#5e4a6f] text-lg mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                    <div className="p-1.5 bg-[#f4eff6] rounded-lg"><Icon name={icon} size={18} /></div>
+                    {title}
+                </h3>
+                {children}
+            </div>
+        );
+
+        // 6. 會後專區
+        const PostTripView = () => (
+            <div className="p-5 pt-20 pb-28 animate-enter space-y-5">
+                {/* Survey Card */}
+                <div className="relative overflow-hidden bg-gradient-to-r from-[#5e4a6f] to-[#453652] rounded-3xl p-6 text-white shadow-floating">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#d3b4d3] rounded-full blur-[50px] opacity-20"></div>
+                    <h3 className="font-bold text-xl mb-3 flex items-center gap-2 relative z-10">
+                        <Icon name="FileText" size={24} className="text-[#d3b4d3]" /> 滿意度調查
+                    </h3>
+                    <p className="text-sm text-gray-200 mb-6 opacity-90 relative z-10">請協助填寫問卷，您的回饋將幫助我們辦得更好。</p>
+                    <a href="https://medresearchntuh.github.io/20260307_115/" target="_blank" className="relative z-10 block w-full bg-[#d3b4d3] text-[#534a55] text-center py-3.5 rounded-xl font-bold hover:bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm">
+                        前往填寫 <Icon name="ExternalLink" size={16} />
+                    </a>
+                </div>
+
+                {/* Photo Download */}
+                <div className="bg-white rounded-3xl shadow-card p-8 border border-gray-50 text-center">
+                    <div className="w-20 h-20 bg-[#f4eff6] rounded-full flex items-center justify-center mx-auto mb-5 text-[#5e4a6f] shadow-inner">
+                        <Icon name="Camera" size={32} />
+                    </div>
+                    <h3 className="font-bold text-gray-800 text-lg mb-2">活動照片下載</h3>
+                    <p className="text-sm text-gray-500 mb-6 px-4">結訓後 2 週工作天內上傳，屆時請點此下載精彩花絮。</p>
+                    <button disabled className="px-8 py-2.5 bg-gray-100 text-gray-400 rounded-full text-sm font-bold cursor-not-allowed border border-gray-200">
+                        尚未開放
+                    </button>
+                </div>
+            </div>
+        );
+
+        // 7. 更多資源 (Resources View)
+        const ResourcesView = () => {
+            const [subTab, setSubTab] = useState('research'); // research, courses, suao
+
+            return (
+                <div className="pb-28 pt-16 animate-enter min-h-screen">
+                    <div className="sticky top-[60px] z-30 bg-[#f8f9fa] px-4 pb-2 pt-2">
+                        <div className="flex bg-gray-200/80 p-1 rounded-xl mb-4">
+                            <button onClick={() => setSubTab('research')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'research' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>研究資源</button>
+                            <button onClick={() => setSubTab('courses')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'courses' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>線上課程</button>
+                            <button onClick={() => setSubTab('suao')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'suao' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>蘇澳懶人包</button>
+                        </div>
+                    </div>
+
+                    <div className="px-5 pb-5">
+                        {subTab === 'research' && (
+                            <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-8 text-center animate-enter">
+                                <div className="w-16 h-16 bg-[#f4eff6] rounded-full flex items-center justify-center mx-auto mb-4 text-[#5e4a6f]">
+                                    <Icon name="Beaker" size={32} />
+                                </div>
+                                <h3 className="font-bold text-gray-800 text-lg mb-2">研究資源整合中</h3>
+                                <p className="text-sm text-gray-500">更多院內研究資源與核心實驗室資訊將陸續更新。</p>
+                            </div>
+                        )}
+
+                        {subTab === 'courses' && (
+                            <div className="space-y-6 animate-enter">
+                                {/* AI Section */}
+                                <div>
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="p-1.5 bg-[#f4eff6] rounded-lg text-[#5e4a6f]"><Icon name="Video" size={18} /></div>
+                                        <h3 className="font-bold text-gray-800">生成式 AI 輔助寫作課程</h3>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {COURSES_DATA.map((course, idx) => (
+                                            <div key={idx} className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                                                <div className="flex justify-between items-start mb-3 border-b border-gray-50 pb-2">
+                                                    <div className="text-xs font-bold text-white bg-[#5e4a6f] px-2 py-1 rounded-lg shadow-sm">{course.date}</div>
+                                                    {course.tms !== "無" && (
+                                                        <a 
+                                                            href={`https://edu.ntuh.gov.tw/course/${course.tms}`} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer" 
+                                                            className="text-[10px] text-[#5e4a6f] font-mono bg-[#f4eff6] px-2 py-0.5 rounded border border-gray-100 hover:bg-[#d3b4d3] hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                                                        >
+                                                            TMS: {course.tms} <Icon name="ExternalLink" size={10} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                                <h4 className="font-bold text-gray-800 text-base mb-2 leading-snug">{course.topic}</h4>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-start gap-2 text-xs text-gray-600">
+                                                        <Icon name="User" size={12} className="mt-0.5 text-gray-400" />
+                                                        <span>{course.speaker}</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2 text-xs text-gray-500">
+                                                        <Icon name="MapPin" size={12} className="mt-0.5 text-gray-400" />
+                                                        <span>{course.unit}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Journal Section */}
+                                <div>
+                                    <div className="flex items-center gap-2 mb-3 mt-6">
+                                        <div className="p-1.5 bg-blue-50 rounded-lg text-blue-600"><Icon name="FileText" size={18} /></div>
+                                        <h3 className="font-bold text-gray-800">論文與期刊投稿</h3>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {JOURNAL_COURSES_DATA.map((course, idx) => (
+                                            <div key={idx} className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                                                <div className="flex justify-between items-start mb-3 border-b border-gray-50 pb-2">
+                                                    <div className="text-xs font-bold text-white bg-blue-500 px-2 py-1 rounded-lg shadow-sm">{course.date}</div>
+                                                    {course.tms !== "無" && (
+                                                        <a 
+                                                            href={`https://edu.ntuh.gov.tw/course/${course.tms}`} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer" 
+                                                            className="text-[10px] text-blue-600 font-mono bg-blue-50 px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-200 transition-colors cursor-pointer flex items-center gap-1"
+                                                        >
+                                                            TMS: {course.tms} <Icon name="ExternalLink" size={10} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                                <h4 className="font-bold text-gray-800 text-base mb-2 leading-snug">{course.topic}</h4>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-start gap-2 text-xs text-gray-600">
+                                                        <Icon name="User" size={12} className="mt-0.5 text-gray-400" />
+                                                        <span>{course.speaker}</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2 text-xs text-gray-500">
+                                                        <Icon name="MapPin" size={12} className="mt-0.5 text-gray-400" />
+                                                        <span>{course.unit}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {subTab === 'suao' && (
+                            <div className="space-y-6 animate-enter">
+                                {/* 懶人包卡片 */}
+                                <div className="relative overflow-hidden bg-gradient-to-br from-[#5e4a6f] to-[#8e7b9f] rounded-3xl p-6 text-white shadow-floating">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-[50px] opacity-20"></div>
+                                    <h3 className="font-bold text-xl mb-3 flex items-center gap-2 relative z-10">
+                                        <Icon name="Star" size={20} className="text-yellow-300" /> 蘇澳一日遊
+                                    </h3>
+                                    <p className="text-sm text-purple-50 leading-relaxed relative z-10">
+                                        體驗全球唯二的冷泉，走訪粉鳥林、內埤情人灣等絕美海景，並大啖番割田甕缸雞、南方澳新鮮海鮮。
+                                    </p>
+                                    <div className="mt-4 pt-4 border-t border-white/20 flex items-center gap-2 text-xs text-purple-100 relative z-10">
+                                        <Icon name="Bus" size={14} /> 建議交通：火車至蘇澳站或客運至蘇澳服務區
+                                    </div>
+                                </div>
+
+                                {/* 美食區塊 */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 px-1">
+                                        <div className="p-1.5 bg-orange-100 rounded-lg text-orange-500"><Icon name="Utensils" size={18} /></div>
+                                        <h3 className="font-bold text-gray-800 text-lg">蘇澳精選美食</h3>
+                                    </div>
+                                    
+                                    <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                                        <h4 className="text-sm font-bold text-[#5e4a6f] mb-3 flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#5e4a6f] rounded-full"></div>熱門海鮮/餐館</h4>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            <PlaceItem title="番割田甕缸雞" desc="號稱宜蘭最好吃，交流道旁" />
+                                            <PlaceItem title="阿芬鮮魚湯" desc="南方澳知名新鮮魚湯" />
+                                            <PlaceItem title="海珍活海鮮餐廳" desc="漁港道地熱炒" />
+                                            <PlaceItem title="阿通伯魚丸" desc="飛虎魚丸、煙燻鯊魚煙" />
                                         </div>
                                     </div>
-                                ` : ''}
-                                ${item.Location ? `<div class="mt-4 text-[11px] text-[#a397a5] flex items-center gap-2 font-black uppercase tracking-tighter"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path></svg>${item.Location}</div>` : ''}
+
+                                    <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                                        <h4 className="text-sm font-bold text-[#5e4a6f] mb-3 flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#5e4a6f] rounded-full"></div>特色小吃/伴手禮</h4>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            <PlaceItem title="南方澳無名蝦餅蚵嗲" desc="酥脆排隊蝦餅" />
+                                            <PlaceItem title="蘇澳港廟口廖榮川米糕" desc="古早味米糕" />
+                                            <PlaceItem title="義珍香烘焙坊" desc="爆漿饅頭、吐司" />
+                                            <PlaceItem title="馬賽阿娥肉串" desc="高CP值10元肉串" />
+                                            <PlaceItem title="鳳鳴羊羹本舖" desc="在地特色老店" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 景點區塊 */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 px-1">
+                                        <div className="p-1.5 bg-green-100 rounded-lg text-green-600"><Icon name="Camera" size={18} /></div>
+                                        <h3 className="font-bold text-gray-800 text-lg">蘇澳必訪景點</h3>
+                                    </div>
+
+                                    <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                                        <h4 className="text-sm font-bold text-teal-600 mb-3 flex items-center gap-2"><div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>絕美海景與自然</h4>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            <PlaceItem title="粉鳥林秘境" desc="夢幻藍寶石海灣" />
+                                            <PlaceItem title="內埤海灘情人灣" desc="絕美沙灘，適合看海放空" />
+                                            <PlaceItem title="豆腐岬風景區" desc="戲水、浮潛熱點" />
+                                            <PlaceItem title="南方澳觀景台" desc="俯瞰南方澳漁港全景" />
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                                        <h4 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-2"><div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>特色體驗與親子</h4>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            <PlaceItem title="蘇澳冷泉公園/阿里史冷泉" desc="世界奇泉，夏天消暑" />
+                                            <PlaceItem title="蜡藝蠟筆城堡" desc="彩繪DIY，親子熱門" />
+                                            <PlaceItem title="計程車博物館" desc="主題特色博物館" />
+                                            <PlaceItem title="祝大漁物產文創館" desc="3D海底隧道與買魚貨" />
+                                            <PlaceItem title="奇麗灣珍奶文化館" desc="珍珠奶茶觀光工廠" />
+                                            <PlaceItem title="宜蘭餅發明館" desc="DIY牛舌餅" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        `).join('')}
+                        )}
                     </div>
                 </div>
-            `).join('');
-        }
-
-        async function loadParticipants() {
-            allParticipants = await fetchData('getParticipants');
-            renderParticipants(allParticipants);
-        }
-
-        function renderParticipants(data) {
-            const list = document.getElementById('participant-list');
-            document.getElementById('search-count').innerText = `${data.length} Results`;
-            if (data.length === 0) {
-                list.innerHTML = `<div class="text-center text-[#c8b7c9] py-20 font-bold italic tracking-widest">無符合條件的名單</div>`;
-                return;
-            }
-            list.innerHTML = data.map(p => `
-                <div onclick="showDetail('${p.員工編號}')" class="bg-white p-6 rounded-[2.5rem] border border-[#ece8ef] shadow-sm active:scale-[0.98] transition-all cursor-pointer">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <span class="font-black text-[#332d35] text-xl tracking-tight">${p.姓名}</span>
-                            <span class="text-[11px] text-[#a397a5] ml-2 font-black tracking-widest uppercase font-mono">${p.員工編號 || ''}</span>
-                        </div>
-                        <span class="room-badge shadow-sm">${p.房號 === '不住宿' ? '無住宿' : p.房號}</span>
-                    </div>
-                    <div class="flex flex-wrap gap-2 pt-4 border-t border-dashed border-[#f0edf2]">
-                        <span class="info-tag shadow-sm">🚌 ${p.交通車 || '--'}</span>
-                        <span class="info-tag shadow-sm">🍽️ ${p.用餐 || '--'}</span>
-                        <span class="info-tag shadow-sm">🥦 ${p.葷素 || '--'}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function switchSearchSubTab(sub) {
-            document.querySelectorAll('.sub-tab').forEach(el => {
-                el.classList.remove('active', 'border-[#5e4a6f]', 'text-[#5e4a6f]');
-                el.classList.add('border-transparent', 'text-[#a397a5]');
-            });
-            document.getElementById(`subtab-${sub}`).classList.add('active', 'border-[#5e4a6f]', 'text-[#5e4a6f]');
-            
-            if (sub === 'all') {
-                document.getElementById('search-all-container').classList.remove('hidden');
-                document.getElementById('search-rooms-container').classList.add('hidden');
-                renderParticipants(allParticipants);
-            } else {
-                document.getElementById('search-all-container').classList.add('hidden');
-                document.getElementById('search-rooms-container').classList.remove('hidden');
-                renderAccommodationList();
-            }
-        }
-
-        function renderAccommodationList() {
-            const list = document.getElementById('accommodation-list');
-            const roomList = allParticipants
-                .filter(p => p.房號 && p.房號 !== '不住宿' && p.房號 !== '--')
-                .sort((a, b) => String(a.房號).localeCompare(String(b.房號)));
-
-            if (roomList.length === 0) {
-                list.innerHTML = `<div class="text-center text-[#c8b7c9] py-20 font-bold italic tracking-widest">目前無住宿分配資料</div>`;
-                return;
-            }
-
-            list.innerHTML = roomList.map(p => `
-                <div onclick="showDetail('${p.員工編號}')" class="bg-white p-5 rounded-3xl border border-[#ece8ef] shadow-sm flex items-center justify-between active:bg-gray-50 transition-colors">
-                    <div class="flex items-center gap-5">
-                        <div class="w-12 h-12 rounded-2xl bg-[#5e4a6f] text-white flex flex-col items-center justify-center font-black shadow-md">
-                            <span class="text-[8px] opacity-70 uppercase mb-0.5">Room</span>
-                            <span class="text-sm tracking-tighter font-mono">${p.房號}</span>
-                        </div>
-                        <div>
-                            <p class="font-black text-[#332d35] text-lg">${p.姓名}</p>
-                            <p class="text-[10px] text-[#a397a5] font-black uppercase tracking-widest">${p.員工編號}</p>
-                        </div>
-                    </div>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8b7c9" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
-            `).join('');
-        }
-
-        function handleInstantSearch() {
-            const val = document.getElementById('search-input').value.toLowerCase();
-            const filtered = allParticipants.filter(p => 
-                (p.姓名 && p.姓名.toLowerCase().includes(val)) || 
-                (p.員工編號 && String(p.員工編號).toLowerCase().includes(val))
             );
-            renderParticipants(filtered);
-        }
-
-        function showDetail(id) {
-            const p = allParticipants.find(item => item.員工編號 == id);
-            if (!p) return;
-            document.getElementById('modal-name').innerText = p.姓名;
-            document.getElementById('modal-id').innerText = `Employee ID: ${p.員工編號 || '--'}`;
-            
-            const fields = [
-                { label: '身分', key: '身分' },
-                { label: '院別', key: '院別' },
-                { label: '科部別', key: '科部別' },
-                { label: '職稱', key: '職稱' },
-                { label: '交通安排', key: '交通車' },
-                { label: '房號', key: '房號' },
-                { label: '用餐安排', key: '用餐' },
-                { label: '晚宴桌次', key: '晚宴桌次' },
-                { label: '葷素習慣', key: '葷素' },
-                { label: '衣服尺寸', key: '衣服尺寸' },
-                { label: '補差額', key: '補差額' }
-            ];
-
-            document.getElementById('modal-content').innerHTML = fields.map(f => `
-                <div class="detail-row flex justify-between items-center py-4 border-b border-[#f9f8fa]">
-                    <span class="text-[#a397a5] font-black text-xs tracking-widest uppercase">${f.label}</span>
-                    <span class="text-[#332d35] font-black text-base">${p[f.key] || '--'}</span>
-                </div>
-            `).join('');
-            document.getElementById('modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        window.onload = async () => {
-            // 初次自動載入名冊（可根據需求調整為點擊才載入）
-            await switchTab('home');
         };
+
+        const PlaceItem = ({ title, desc }) => {
+            const query = `${title} 宜蘭蘇澳`;
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+            return (
+                <div className="flex justify-between items-center border-b border-gray-50 last:border-0 pb-2 last:pb-0">
+                    <div className="flex-1 min-w-0 mr-2">
+                        <div className="text-sm font-bold text-gray-700 truncate">{title}</div>
+                        <div className="text-xs text-gray-400 truncate">{desc}</div>
+                    </div>
+                    <a 
+                        href={mapUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shrink-0"
+                        aria-label={`導航至 ${title}`}
+                    >
+                        <Icon name="Map" size={16} />
+                    </a>
+                </div>
+            );
+        };
+
+        // --- 主程式 & 底部導航 ---
+        const App = () => {
+            const [tab, setTab] = useState('home');
+
+            return (
+                <div className="min-h-screen bg-[#f8f9fa] font-sans text-[#534a55] pb-safe max-w-md mx-auto relative shadow-2xl overflow-hidden bg-white">
+                    <TopBar />
+                    
+                    <main className="relative min-h-screen bg-[#f8f9fa]">
+                        {tab === 'home' && <HomeView onChangeTab={setTab} />}
+                        {tab === 'agenda' && <AgendaView />}
+                        {tab === 'roster' && <RosterView />}
+                        {tab === 'pre' && <PreTripView />}
+                        {tab === 'post' && <PostTripView />}
+                        {tab === 'resources' && <ResourcesView />}
+                    </main>
+
+                    {/* Bottom Navigation Bar - Floating Style */}
+                    <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+                        <nav className="bg-white/95 backdrop-blur-xl shadow-floating border border-white/50 rounded-full px-2 py-2 flex items-center gap-1 pointer-events-auto max-w-[95%] overflow-x-auto no-scrollbar">
+                            <NavButton active={tab === 'home'} onClick={() => setTab('home')} icon="Home" label="首頁" />
+                            <NavButton active={tab === 'agenda'} onClick={() => setTab('agenda')} icon="Calendar" label="議程" />
+                            <NavButton active={tab === 'roster'} onClick={() => setTab('roster')} icon="Search" label="名冊" />
+                            <NavButton active={tab === 'pre'} onClick={() => setTab('pre')} icon="Info" label="行前" />
+                            <NavButton active={tab === 'post'} onClick={() => setTab('post')} icon="FileText" label="會後" />
+                            <NavButton active={tab === 'resources'} onClick={() => setTab('resources')} icon="Grid" label="資源" />
+                        </nav>
+                    </div>
+                </div>
+            );
+        };
+
+        const NavButton = ({ active, onClick, icon, label }) => (
+            <button 
+                onClick={onClick} 
+                className={`flex flex-col items-center justify-center w-11 h-11 rounded-full transition-all duration-300 shrink-0 ${active ? 'bg-[#5e4a6f] text-white shadow-md scale-110' : 'text-gray-400 hover:bg-gray-100'}`}
+            >
+                <Icon name={icon} size={18} />
+            </button>
+        );
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
