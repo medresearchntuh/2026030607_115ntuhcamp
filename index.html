@@ -57,6 +57,20 @@
         .animate-enter {
             animation: fadeIn 0.4s ease-out forwards;
         }
+        
+        /* Loading Spinner Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loader {
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid #5e4a6f;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -179,7 +193,6 @@
         ];
 
         // --- 資料來源: 線上課程 (AI) ---
-        // 排序：由近到遠 (日期降序)
         const COURSES_DATA = [
             {
                 date: "115/01/29",
@@ -219,7 +232,6 @@
         ];
 
         // --- 資料來源: 線上課程 (論文與期刊) ---
-        // 排序：由近到遠 (日期降序)
         const JOURNAL_COURSES_DATA = [
             {
                 date: "113/03/22",
@@ -776,8 +788,9 @@
 
                     <div className="px-4 space-y-3 mt-2">
                         {loading ? (
-                            <div className="flex justify-center items-center py-20">
+                            <div className="flex flex-col justify-center items-center py-20 gap-3">
                                 <div className="loader"></div>
+                                <p className="text-gray-500 text-xs font-medium animate-pulse tracking-wide">正在載入名冊資料...</p>
                             </div>
                         ) : (
                             <>
@@ -919,7 +932,7 @@
                     </button>
                 </div>
 
-                {/* 2. 滿意度調查 */}
+                {/* 2. 滿意度調查 (Updated Style) */}
                 <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center">
