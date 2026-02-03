@@ -57,20 +57,6 @@
         .animate-enter {
             animation: fadeIn 0.4s ease-out forwards;
         }
-        
-        /* Loading Spinner Animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loader {
-            border: 3px solid #e5e7eb;
-            border-top: 3px solid #5e4a6f;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            animation: spin 1s linear infinite;
-        }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -927,9 +913,9 @@
                             <p className="text-[10px] text-gray-400">請依規定時間完成</p>
                         </div>
                     </div>
-                    <button className="px-4 py-1.5 bg-blue-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-blue-600 transition-colors">
+                    <a href="https://medresearchntuh.github.io/2026030607_115ntuhcampsign/" target="_blank" className="px-4 py-1.5 bg-blue-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-blue-600 transition-colors">
                         前往簽到
-                    </button>
+                    </a>
                 </div>
 
                 {/* 2. 滿意度調查 (Updated Style) */}
