@@ -15,7 +15,7 @@
     <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Google Fonts (引入 Noto Sans TC 提升質感) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <script>
@@ -30,7 +30,7 @@
                         secondary: '#8e7b9f',
                         accent: '#d3b4d3',
                         surface: '#ffffff',
-                        background: '#f8f9fc', // 極淡的藍灰色背景，比純白更有質感
+                        background: '#f8f9fc',
                     },
                     boxShadow: {
                         'soft': '0 8px 30px rgba(0,0,0,0.04)',
@@ -54,7 +54,6 @@
             font-family: 'Noto Sans TC', sans-serif;
         }
         
-        /* Smooth Fade In Animation */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -63,15 +62,12 @@
             animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
-        /* Custom Scrollbar Hide */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Safe Area Padding */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
         .pt-safe { padding-top: env(safe-area-inset-top); }
 
-        /* Glassmorphism Utilities */
         .glass {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
@@ -86,7 +82,7 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
 
-        // --- 資料來源: 議程 (保持不變) ---
+        // --- 資料來源: 議程 ---
         const AGENDA_DATA = [
           {
             date: "3月6日 (週五)",
@@ -114,11 +110,11 @@
                 section: "專題演講 II",
                 host: "楊鎧鍵 教授",
                 items: [
-                  { time: "13:30", endTime: "13:55", topic: "從站穩腳步到精益求精：個人永續發展之路", speaker: "陳慧玲 主任", dept: "教學部" },
+                  { time: "13:30", endTime: "13:55", topic: "臨床與基礎研究的選擇", speaker: "林頌然 主任", dept: "醫學研究部" },
                   { time: "13:55", endTime: "14:20", topic: "個人研究與出國進修分享", speaker: "鐘桂彬 助理教授", dept: "檢驗醫學部" },
                   { time: "14:20", endTime: "14:45", topic: "如何發起及執行臨床試驗？", speaker: "劉志銘 教授", dept: "內科部" },
                   { time: "14:45", endTime: "15:10", topic: "透過生醫設計流程解決臨床問題", speaker: "黃博浩 副教授", dept: "外科部" },
-                  { time: "15:10", endTime: "15:35", topic: "臨床與基礎研究的選擇", speaker: "林頌然 主任", dept: "醫學研究部" },
+                  { time: "15:10", endTime: "15:35", topic: "從站穩腳步到精益求精：個人永續發展之路", speaker: "陳慧玲 主任", dept: "教學部" },
                   { time: "15:35", endTime: "15:45", topic: "院長室長官致詞 II", speaker: "余忠仁 院長", dept: "院長室" }
                 ]
               },
@@ -376,6 +372,12 @@
         // --- 資料來源: 研究服務 (歸納自研究員資料) ---
         const RESEARCH_SERVICES_DATA = [
             {
+                title: "論文與計畫諮詢",
+                desc: "英文論文寫作評估、投稿期刊選擇、計畫書諮詢。\nAI浪潮席捲全球，論文不應是AI生成內容的拼貼，而要能反映作者的學術視角。本諮詢服務能幫助您精準定位研究亮點，透過討論強化邏輯論述，有效應對審查意見，建立長期寫作能力。",
+                icon: "FileText",
+                offices: ["第六共研"]
+            },
+            {
                 title: "生物統計與資料庫",
                 desc: "臨床試驗設計、統計分析、醫療資料庫申請、數據處理",
                 icon: "BarChart",
@@ -422,12 +424,6 @@
                 desc: "細胞治療品管、GTP實驗室、幹細胞研究",
                 icon: "Zap",
                 offices: ["第九共研"]
-            },
-            {
-                title: "論文與計畫諮詢",
-                desc: "英文論文寫作評估、投稿期刊選擇、計畫書諮詢",
-                icon: "FileText",
-                offices: ["第六共研"]
             }
         ];
 
@@ -732,13 +728,11 @@
         const RosterView = () => {
             const [search, setSearch] = useState("");
             const [tab, setTab] = useState("all");
-            // 替換為真實資料
-            const [rosterData, setRosterData] = useState([]); // INITIAL_ROSTER_DATA for testing
+            const [rosterData, setRosterData] = useState([]);
             const [loading, setLoading] = useState(true);
 
-            // Fetch data from GAS
             useEffect(() => {
-                fetch('https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec') // Replace with YOUR_GAS_URL
+                fetch('https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec')
                     .then(res => res.json())
                     .then(data => {
                          setRosterData(data);
@@ -747,7 +741,6 @@
                     .catch(err => {
                         console.error('Failed to fetch roster:', err);
                         setLoading(false);
-                        // Fallback to initial data if fetch fails (optional)
                         setRosterData(INITIAL_ROSTER_DATA); 
                     });
             }, []);
@@ -767,7 +760,7 @@
 
             return (
                 <div className="pb-28 pt-16 animate-enter min-h-screen">
-                    <div className="sticky top-[60px] z-30 bg-[#f8f9fa] px-4 pb-2 pt-2">
+                    <div className="sticky top-[60px] z-30 bg-[#f8f9fc] px-4 pb-2 pt-2">
                         {/* Search Input - Floating Style */}
                         <div className="relative shadow-floating rounded-2xl bg-white mb-4">
                             <div className="absolute left-4 top-3.5 text-[#5e4a6f] opacity-50"><Icon name="Search" size={20} /></div>
@@ -790,8 +783,8 @@
                     <div className="px-4 space-y-3 mt-2">
                         {loading ? (
                             <div className="flex flex-col justify-center items-center py-20 gap-3">
-                                <div className="loader"></div>
-                                <p className="text-gray-500 text-xs font-medium animate-pulse tracking-wide">正在載入名冊資料...</p>
+                                <div className="w-8 h-8 border-4 border-gray-200 border-t-[#5e4a6f] rounded-full animate-spin"></div>
+                                <p className="text-gray-400 text-xs font-medium animate-pulse tracking-wide">載入中...</p>
                             </div>
                         ) : (
                             <>
@@ -836,7 +829,7 @@
                     <div className="grid grid-cols-3 gap-2">
                         <InfoItem icon="Bus" label="交通" value={person.bus} />
                         <InfoItem icon="Bed" label="房號" value={person.room} highlight={person.room !== '不住宿'} />
-                        <InfoItem icon="Utensils" label="晚宴" value={person.table} />
+                        <InfoItem icon="Utensils" label="晚宴桌次" value={person.table} />
                     </div>
 
                     {expanded && (
@@ -914,63 +907,63 @@
             </div>
         );
 
-        // 6. 會後專區 (Updated)
+        // 6. 會後專區
         const PostTripView = () => (
-            <div className="p-5 pt-20 pb-28 animate-enter space-y-5">
-                {/* 1. 簽到退 */}
-                <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
-                            <Icon name="Edit3" size={20} />
+            <div className="p-5 pt-20 pb-28 animate-enter space-y-4">
+                {/* 1. 簽到退 (一致的白色卡片風格) */}
+                <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 flex items-center justify-between transition-transform active:scale-[0.99]">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                            <Icon name="Edit3" size={22} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-800 text-sm">活動線上簽到退</h4>
-                            <p className="text-[10px] text-gray-400">請依規定時間完成</p>
+                            <h4 className="font-bold text-gray-800 text-sm mb-0.5">活動線上簽到退</h4>
+                            <p className="text-[11px] text-gray-400">請依規定時間完成</p>
                         </div>
                     </div>
-                    <a href="https://medresearchntuh.github.io/2026030607_115ntuhcampsign/" target="_blank" className="px-4 py-1.5 bg-blue-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-blue-600 transition-colors">
+                    <a href="https://medresearchntuh.github.io/2026030607_115ntuhcampsign/" target="_blank" className="px-5 py-2.5 bg-blue-500 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-blue-600 transition-colors whitespace-nowrap">
                         前往簽到
                     </a>
                 </div>
 
-                {/* 2. 滿意度調查 (Updated Style) */}
-                <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center">
-                            <Icon name="FileText" size={20} />
+                {/* 2. 滿意度調查 (一致的白色卡片風格，移除特別 highlight) */}
+                <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 flex items-center justify-between transition-transform active:scale-[0.99]">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center shrink-0">
+                            <Icon name="FileText" size={22} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-800 text-sm">活動滿意度調查</h4>
-                            <p className="text-[10px] text-gray-400">協助我們辦得更好</p>
+                            <h4 className="font-bold text-gray-800 text-sm mb-0.5">活動滿意度調查</h4>
+                            <p className="text-[11px] text-gray-400">協助我們辦得更好</p>
                         </div>
                     </div>
-                    <a href="https://medresearchntuh.github.io/20260307_115ntuhcampsurvey/" target="_blank" className="px-4 py-1.5 bg-[#5e4a6f] text-white text-xs font-bold rounded-lg shadow-sm hover:bg-[#4a3a58] transition-colors">
+                    <a href="https://medresearchntuh.github.io/20260307_115ntuhcampsurvey/" target="_blank" className="px-5 py-2.5 bg-[#5e4a6f] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-[#4a3a58] transition-colors whitespace-nowrap">
                         前往填寫
                     </a>
                 </div>
 
-                {/* 3. 照片與講義下載 */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* 3 & 4. 照片與講義下載 (Grid Layout) */}
+                <div className="grid grid-cols-2 gap-4 pt-2">
                     {/* 照片 */}
                     <div className="bg-white rounded-2xl shadow-card p-5 border border-gray-50 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-[#f4eff6] rounded-full flex items-center justify-center mb-3 text-[#5e4a6f]">
+                        <div className="w-14 h-14 bg-[#f4eff6] rounded-full flex items-center justify-center mb-3 text-[#5e4a6f] shadow-inner">
                             <Icon name="Camera" size={24} />
                         </div>
                         <h4 className="font-bold text-gray-800 text-sm mb-1">活動照片下載</h4>
-                        <p className="text-[10px] text-gray-400 mb-3">2周工作天上傳</p>
-                        <button disabled className="w-full py-1.5 bg-gray-100 text-gray-400 rounded-lg text-xs font-bold cursor-not-allowed">
+                        <p className="text-[10px] text-gray-400 mb-4">2周工作天上傳</p>
+                        <button disabled className="w-full py-2.5 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold cursor-not-allowed">
                             尚未開放
                         </button>
                     </div>
 
                     {/* 講義 */}
                     <div className="bg-white rounded-2xl shadow-card p-5 border border-gray-50 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-[#f4eff6] rounded-full flex items-center justify-center mb-3 text-[#5e4a6f]">
+                        <div className="w-14 h-14 bg-[#f4eff6] rounded-full flex items-center justify-center mb-3 text-[#5e4a6f] shadow-inner">
                             <Icon name="BookOpen" size={24} />
                         </div>
                         <h4 className="font-bold text-gray-800 text-sm mb-1">活動講義下載</h4>
-                        <p className="text-[10px] text-gray-400 mb-3">2周工作天上傳</p>
-                        <button disabled className="w-full py-1.5 bg-gray-100 text-gray-400 rounded-lg text-xs font-bold cursor-not-allowed">
+                        <p className="text-[10px] text-gray-400 mb-4">2周工作天上傳</p>
+                        <button disabled className="w-full py-2.5 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold cursor-not-allowed">
                             尚未開放
                         </button>
                     </div>
@@ -978,7 +971,7 @@
             </div>
         );
 
-        // 7. 更多資源 (Resources View)
+        // 7. 更多資源 (Resources View) - 整合觀光分頁
         const ResourcesView = () => {
             const [subTab, setSubTab] = useState('research'); // research, courses, suao
             // nested tab for research
@@ -986,7 +979,7 @@
 
             return (
                 <div className="pb-28 pt-16 animate-enter min-h-screen">
-                    <div className="sticky top-[60px] z-30 bg-[#f8f9fa] px-4 pb-2 pt-2">
+                    <div className="sticky top-[60px] z-30 bg-[#f8f9fc] px-4 pb-2 pt-2">
                         <div className="flex bg-gray-200/80 p-1 rounded-xl mb-4">
                             <button onClick={() => setSubTab('research')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'research' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>研究資源</button>
                             <button onClick={() => setSubTab('courses')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'courses' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>線上課程</button>
@@ -1105,13 +1098,13 @@
                         {subTab === 'suao' && (
                             <div className="space-y-6 animate-enter">
                                 {/* 懶人包卡片 */}
-                                <div className="relative overflow-hidden bg-gradient-to-br from-[#5e4a6f] to-[#8e7b9f] rounded-3xl p-6 text-white shadow-floating">
+                                <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl p-6 text-white shadow-floating">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-[50px] opacity-20"></div>
                                     <h3 className="font-bold text-xl mb-3 flex items-center gap-2 relative z-10">
-                                        <Icon name="Star" size={20} className="text-yellow-300" /> 蘇澳一日遊
+                                        <Icon name="Star" size={20} className="text-yellow-300" /> 蘇澳一日遊懶人包
                                     </h3>
                                     <p className="text-sm text-purple-50 leading-relaxed relative z-10">
-                                        體驗全球唯二的冷泉，走訪粉鳥林、內埤情人灣等絕美海景，並大啖番割田甕缸雞、南方澳新鮮海鮮。
+                                        體驗全球唯二的冷泉，走訪粉鳥林、內埤情人灣等絕美海景，並大啖番割田甕缸雞、南方澳新鮮海鮮。推薦順遊蠟筆城堡、計程車博物館等親子觀光工廠。
                                     </p>
                                     <div className="mt-4 pt-4 border-t border-white/20 flex items-center gap-2 text-xs text-purple-100 relative z-10">
                                         <Icon name="Bus" size={14} /> 建議交通：火車至蘇澳站或客運至蘇澳服務區
@@ -1277,10 +1270,10 @@
             const [tab, setTab] = useState('home');
 
             return (
-                <div className="min-h-screen bg-[#f8f9fa] font-sans text-[#534a55] pb-safe max-w-md mx-auto relative shadow-2xl overflow-hidden bg-white">
+                <div className="min-h-screen bg-[#f8f9fc] font-sans text-[#534a55] pb-safe max-w-md mx-auto relative shadow-2xl overflow-hidden bg-white">
                     <TopBar />
                     
-                    <main className="relative min-h-screen bg-[#f8f9fa]">
+                    <main className="relative min-h-screen bg-[#f8f9fc]">
                         {tab === 'home' && <HomeView onChangeTab={setTab} />}
                         {tab === 'agenda' && <AgendaView />}
                         {tab === 'roster' && <RosterView />}
@@ -1295,7 +1288,7 @@
 
                     {/* Bottom Navigation Bar - Floating Style */}
                     <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-                        <nav className="bg-white/95 backdrop-blur-xl shadow-floating border border-white/50 rounded-full px-2 py-2 flex items-center gap-1 pointer-events-auto max-w-[95%] overflow-x-auto no-scrollbar">
+                        <nav className="bg-white/95 backdrop-blur-xl shadow-floating border border-white/50 rounded-full px-2 py-2 flex items-center gap-1 pointer-events-auto max-w-[95%] overflow-x-auto no-scrollbar glass">
                             <NavButton active={tab === 'home'} onClick={() => setTab('home')} icon="Home" label="首頁" />
                             <NavButton active={tab === 'pre'} onClick={() => setTab('pre')} icon="Info" label="行前" />
                             <NavButton active={tab === 'agenda'} onClick={() => setTab('agenda')} icon="Calendar" label="議程" />
@@ -1311,7 +1304,7 @@
         const NavButton = ({ active, onClick, icon, label }) => (
             <button 
                 onClick={onClick} 
-                className={`flex flex-col items-center justify-center w-11 h-11 rounded-full transition-all duration-300 shrink-0 ${active ? 'bg-[#5e4a6f] text-white shadow-md scale-110' : 'text-gray-400 hover:bg-gray-100'}`}
+                className={`flex flex-col items-center justify-center w-11 h-11 rounded-full transition-all duration-300 shrink-0 ${active ? 'bg-[#5e4a6f] text-white shadow-md scale-110' : 'text-gray-400 hover:bg-gray-100 hover:scale-105'}`}
             >
                 <Icon name={icon} size={18} />
             </button>
