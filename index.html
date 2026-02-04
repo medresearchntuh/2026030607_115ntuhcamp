@@ -15,7 +15,7 @@
     <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts (引入 Noto Sans TC 提升質感) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <script>
@@ -30,12 +30,16 @@
                         secondary: '#8e7b9f',
                         accent: '#d3b4d3',
                         surface: '#ffffff',
-                        background: '#f4f6f8',
+                        background: '#f8f9fc', // 極淡的藍灰色背景，比純白更有質感
                     },
                     boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(94, 74, 111, 0.1)',
-                        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
-                        'floating': '0 10px 30px -5px rgba(94, 74, 111, 0.15)',
+                        'soft': '0 8px 30px rgba(0,0,0,0.04)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'floating': '0 20px 40px -5px rgba(94, 74, 111, 0.15)',
+                        'glow': '0 0 20px rgba(211, 180, 211, 0.3)',
+                    },
+                    backgroundImage: {
+                        'hero-gradient': 'linear-gradient(135deg, #5e4a6f 0%, #8e7b9f 100%)',
                     }
                 }
             }
@@ -44,25 +48,36 @@
 
     <style>
         body {
-            background-color: #f4f6f8;
+            background-color: #f8f9fc;
             color: #4a4a4a;
             -webkit-tap-highlight-color: transparent;
             font-family: 'Noto Sans TC', sans-serif;
         }
         
+        /* Smooth Fade In Animation */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-enter {
-            animation: fadeIn 0.4s ease-out forwards;
+            animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
+        /* Custom Scrollbar Hide */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Safe Area Padding */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
         .pt-safe { padding-top: env(safe-area-inset-top); }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -71,7 +86,7 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
 
-        // --- 資料來源: 議程 ---
+        // --- 資料來源: 議程 (保持不變) ---
         const AGENDA_DATA = [
           {
             date: "3月6日 (週五)",
@@ -160,22 +175,22 @@
           }
         ];
 
-        // --- 資料來源: 名冊 (Google Sheet 欄位對應: A-M) ---
+        // --- 資料來源: 名冊 (修正對應: Table=I, Food=J) ---
         const INITIAL_ROSTER_DATA = [
-          { category: "受邀長官", hospital: "總院", id: "002904", name: "余忠仁", dept: "院長室", title: "院長", bus: "自理", room: "不住宿", food: "不吃", table: "主5", diet: "葷", size: "L", extra_pay: "" },
-          { category: "受邀長官", hospital: "總院", id: "002849", name: "高嘉宏", dept: "院長室", title: "副院長", bus: "自理", room: "不住宿", food: "D1/不晚", table: "不吃晚宴", diet: "葷", size: "L", extra_pay: "" },
-          { category: "受邀講師", hospital: "總院", id: "007802", name: "李宜家", dept: "醫學研究部", title: "教授", bus: "B01", room: "C-12", food: "D1/D2", table: "A-01", diet: "葷", size: "XL", extra_pay: "3900" },
-          { category: "受邀講師", hospital: "總院", id: "018768", name: "林孟暐", dept: "外科部", title: "教授", bus: "自理", room: "B-04-1", food: "D1/D2", table: "A-02", diet: "葷", size: "XL", extra_pay: "" },
-          { category: "受邀講師", hospital: "總院", id: "102067", name: "林欣儀", dept: "藥劑部", title: "藥師", bus: "B06", room: "不住宿", food: "不吃", table: "不吃晚宴", diet: "不吃", size: "S", extra_pay: "" },
-          { category: "受邀講師", hospital: "總院", id: "009015", name: "林頌然", dept: "醫學研究部", title: "教授", bus: "A01", room: "C-14", food: "D1/D2", table: "A-03", diet: "葷", size: "M", extra_pay: "3900" },
-          { category: "受邀講師", hospital: "總院", id: "112264", name: "張育瑄", dept: "教學部", title: "主治醫師", bus: "B02", room: "C-04", food: "D1/D2", table: "B-01", diet: "葷", size: "M", extra_pay: "" },
-          { category: "參加學員", hospital: "新竹", id: "G04420", name: "黃亮恩", dept: "內科部", title: "主治醫師", bus: "B12", room: "C-21", food: "D1/D2", table: "G-03", diet: "葷", size: "L", extra_pay: "3900" },
-          { category: "參加學員", hospital: "雲林", id: "Y05773", name: "黃柏翰", dept: "耳鼻喉部", title: "主治醫師", bus: "A09", room: "B-08-2", food: "D1/D2", table: "G-04", diet: "葷", size: "L", extra_pay: "" },
-          { category: "參加學員", hospital: "癌醫", id: "A03182", name: "楊向國", dept: "婦產部", title: "主治醫師", bus: "C26", room: "A-14-1", food: "D1/D2", table: "G-05", diet: "葷", size: "L", extra_pay: "" },
-          { category: "參加學員", hospital: "癌醫", id: "A01092", name: "葉政亞", dept: "影像醫學部", title: "醫事放射師", bus: "自理", room: "不住宿", food: "D1", table: "G-06", diet: "葷", size: "2XL", extra_pay: "" },
-          { category: "參加學員", hospital: "總院", id: "030405", name: "葉慧英", dept: "基因醫學部", title: "醫事檢驗師", bus: "C08", room: "A-02-2", food: "D1/D2", table: "G-07", diet: "葷", size: "L", extra_pay: "" },
-          { category: "參加學員", hospital: "總院", id: "113492", name: "廖愷欣", dept: "藥劑部", title: "藥師", bus: "C20", room: "A-11-1", food: "D1/D2", table: "G-08", diet: "葷", size: "M", extra_pay: "" },
-          { category: "參加學員", hospital: "總院", id: "030605", name: "劉彥德", dept: "影像醫學部", title: "醫事放射師", bus: "C04", room: "B-09-1", food: "D1/D2", table: "G-09", diet: "葷", size: "2XL", extra_pay: "" }
+          { category: "受邀長官", hospital: "總院", id: "002904", name: "余忠仁", dept: "院長室", title: "院長", bus: "自理", room: "不住宿", table: "主5", food: "不吃", diet: "葷", size: "L", extra_pay: "" },
+          { category: "受邀長官", hospital: "總院", id: "002849", name: "高嘉宏", dept: "院長室", title: "副院長", bus: "自理", room: "不住宿", table: "不吃晚宴", food: "D1/不晚", diet: "葷", size: "L", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "007802", name: "李宜家", dept: "醫學研究部", title: "教授", bus: "B01", room: "C-12", table: "A-01", food: "D1/D2", diet: "葷", size: "XL", extra_pay: "3900" },
+          { category: "受邀講師", hospital: "總院", id: "018768", name: "林孟暐", dept: "外科部", title: "教授", bus: "自理", room: "B-04-1", table: "A-02", food: "D1/D2", diet: "葷", size: "XL", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "102067", name: "林欣儀", dept: "藥劑部", title: "藥師", bus: "B06", room: "不住宿", table: "不吃晚宴", food: "不吃", diet: "不吃", size: "S", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "009015", name: "林頌然", dept: "醫學研究部", title: "教授", bus: "A01", room: "C-14", table: "A-03", food: "D1/D2", diet: "葷", size: "M", extra_pay: "3900" },
+          { category: "受邀講師", hospital: "總院", id: "112264", name: "張育瑄", dept: "教學部", title: "主治醫師", bus: "B02", room: "C-04", table: "B-01", food: "D1/D2", diet: "葷", size: "M", extra_pay: "" },
+          { category: "參加學員", hospital: "新竹", id: "G04420", name: "黃亮恩", dept: "內科部", title: "主治醫師", bus: "B12", room: "C-21", table: "G-03", food: "D1/D2", diet: "葷", size: "L", extra_pay: "3900" },
+          { category: "參加學員", hospital: "雲林", id: "Y05773", name: "黃柏翰", dept: "耳鼻喉部", title: "主治醫師", bus: "A09", room: "B-08-2", table: "G-04", food: "D1/D2", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "癌醫", id: "A03182", name: "楊向國", dept: "婦產部", title: "主治醫師", bus: "C26", room: "A-14-1", table: "G-05", food: "D1/D2", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "癌醫", id: "A01092", name: "葉政亞", dept: "影像醫學部", title: "醫事放射師", bus: "自理", room: "不住宿", table: "G-06", food: "D1", diet: "葷", size: "2XL", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "030405", name: "葉慧英", dept: "基因醫學部", title: "醫事檢驗師", bus: "C08", room: "A-02-2", table: "G-07", food: "D1/D2", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "113492", name: "廖愷欣", dept: "藥劑部", title: "藥師", bus: "C20", room: "A-11-1", table: "G-08", food: "D1/D2", diet: "葷", size: "M", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "030605", name: "劉彥德", dept: "影像醫學部", title: "醫事放射師", bus: "C04", room: "B-09-1", table: "G-09", food: "D1/D2", diet: "葷", size: "2XL", extra_pay: "" }
         ];
 
         // --- 資料來源: 線上課程 (AI) ---
@@ -1272,6 +1287,10 @@
                         {tab === 'pre' && <PreTripView />}
                         {tab === 'post' && <PostTripView />}
                         {tab === 'resources' && <ResourcesView />}
+                        
+                        <footer className="py-6 text-center text-[10px] text-gray-400 pb-28">
+                            系統設計：台大醫院總院醫學研究部 陳巧瑜管理師 (分機 263254)
+                        </footer>
                     </main>
 
                     {/* Bottom Navigation Bar - Floating Style */}
