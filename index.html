@@ -132,11 +132,11 @@
                 section: "專題演講 IV",
                 host: "楊鎧鍵 教授",
                 items: [
-                  { time: "09:00", endTime: "09:20", topic: "院內研究資源－共同研究室與研究服務核心", speaker: "蔡芷季 組長" },
-                  { time: "09:20", endTime: "09:40", topic: "院內計畫簡介懶人包", speaker: "楊鎧鍵 組長" },
-                  { time: "09:40", endTime: "10:00", topic: "使用醫療整合資料創新研發", speaker: "李宜家 副主任" },
-                  { time: "10:00", endTime: "11:00", topic: "生成式 AI 輔助研究懶人包", speaker: "莊又丞 資訊工程師" },
-                  { time: "11:00", endTime: "11:30", topic: "研究傳播工具：視覺化設計與可近用性評估", speaker: "張育瑄 主治醫師" }
+                  { time: "09:00", endTime: "09:20", topic: "院內研究資源－共同研究室與研究服務核心", speaker: "蔡芷季 組長", dept: "醫學研究部" },
+                  { time: "09:20", endTime: "09:40", topic: "院內計畫簡介懶人包", speaker: "楊鎧鍵 組長", dept: "醫學研究部" },
+                  { time: "09:40", endTime: "10:00", topic: "使用醫療整合資料創新研發", speaker: "李宜家 副主任", dept: "醫學研究部" },
+                  { time: "10:00", endTime: "11:00", topic: "生成式 AI 輔助研究懶人包", speaker: "莊又丞 資訊工程師", dept: "資訊室" },
+                  { time: "11:00", endTime: "11:30", topic: "研究傳播工具：視覺化設計與可近用性評估", speaker: "張育瑄 主治醫師", dept: "教學部" }
                 ]
               },
               { time: "11:30", endTime: "13:00", topic: "午餐時間", location: "住宿大樓 2F 餐廳", type: "food" },
@@ -144,15 +144,15 @@
                 section: "專題演講 V",
                 host: "楊鎧鍵 教授",
                 items: [
-                  { time: "13:00", endTime: "13:30", topic: "主治醫師升等與經驗分享", speaker: "林孟暐 教授" },
-                  { time: "13:30", endTime: "14:00", topic: "科研創新 × 專利思維：專利申請與技轉實務", speaker: "楊宗霖 副研發長" }
+                  { time: "13:00", endTime: "13:30", topic: "主治醫師升等與經驗分享", speaker: "林孟暐 教授", dept: "外科部" },
+                  { time: "13:30", endTime: "14:00", topic: "科研創新 × 專利思維", speaker: "楊宗霖 副研發長", dept: "校總區研發處" }
                 ]
               },
               {
                 section: "綜合討論 & 閉幕",
                 host: "林頌然 主任",
                 items: [
-                  { time: "14:00", endTime: "14:30", topic: "綜合討論 Q&A", speaker: "林頌然 主任 (引言)" },
+                  { time: "14:00", endTime: "14:30", topic: "綜合討論 Q&A", speaker: "林頌然 主任 (引言)", dept: "醫學研究部" },
                   { time: "14:30", endTime: "15:00", topic: "閉幕、大合照與賦歸", speaker: "全體人員" }
                 ]
               }
@@ -1090,7 +1090,7 @@
                         {subTab === 'suao' && (
                             <div className="space-y-6 animate-enter">
                                 {/* 懶人包卡片 */}
-                                <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl p-6 text-white shadow-floating">
+                                <div className="relative overflow-hidden bg-gradient-to-br from-[#5e4a6f] to-[#8e7b9f] rounded-3xl p-6 text-white shadow-floating">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-[50px] opacity-20"></div>
                                     <h3 className="font-bold text-xl mb-3 flex items-center gap-2 relative z-10">
                                         <Icon name="Star" size={20} className="text-yellow-300" /> 蘇澳一日遊
@@ -1303,4 +1303,3 @@
     </script>
 </body>
 </html>
-
