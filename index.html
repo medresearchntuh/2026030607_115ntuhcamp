@@ -102,7 +102,7 @@
                 host: "林頌然 教授",
                 items: [
                   { time: "11:00", endTime: "11:30", topic: "醫師與醫事人員科學家之倫理素養", speaker: "蔡甫昌 主任", dept: "倫理中心" },
-                  { time: "11:30", endTime: "12:00", topic: "教學部專題分享", speaker: "楊志偉 副主任", dept: "教學部" }
+                  { time: "11:30", endTime: "12:00", topic: "讓教學被看見：臨床教師教學研究之路--從教學現場到學術成果", speaker: "楊志偉 副主任", dept: "教學部" }
                 ]
               },
               { time: "12:00", endTime: "13:30", topic: "午餐時間", location: "住宿大樓 2F 餐廳", type: "food" },
@@ -156,7 +156,7 @@
                 host: "楊鎧鍵 教授",
                 items: [
                   { time: "13:00", endTime: "13:30", topic: "主治醫師升等與經驗分享", speaker: "林孟暐 教授", dept: "外科部" },
-                  { time: "13:30", endTime: "14:00", topic: "科研創新 × 專利思維", speaker: "楊宗霖 副研發長", dept: "校總區研發處" }
+                  { time: "13:30", endTime: "14:00", topic: "科研創新 × 專利思維：專利申請與技轉實務", speaker: "楊宗霖 副研發長", dept: "校總區研發處" }
                 ]
               },
               {
@@ -728,11 +728,13 @@
         const RosterView = () => {
             const [search, setSearch] = useState("");
             const [tab, setTab] = useState("all");
-            const [rosterData, setRosterData] = useState([]);
+            // 替換為真實資料
+            const [rosterData, setRosterData] = useState([]); // INITIAL_ROSTER_DATA for testing
             const [loading, setLoading] = useState(true);
 
+            // Fetch data from GAS
             useEffect(() => {
-                fetch('https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec')
+                fetch('https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec') // Replace with YOUR_GAS_URL
                     .then(res => res.json())
                     .then(data => {
                          setRosterData(data);
@@ -741,6 +743,7 @@
                     .catch(err => {
                         console.error('Failed to fetch roster:', err);
                         setLoading(false);
+                        // Fallback to initial data if fetch fails (optional)
                         setRosterData(INITIAL_ROSTER_DATA); 
                     });
             }, []);
@@ -829,7 +832,7 @@
                     <div className="grid grid-cols-3 gap-2">
                         <InfoItem icon="Bus" label="交通" value={person.bus} />
                         <InfoItem icon="Bed" label="房號" value={person.room} highlight={person.room !== '不住宿'} />
-                        <InfoItem icon="Utensils" label="晚宴桌次" value={person.table} />
+                        <InfoItem icon="Utensils" label="用餐" value={person.food} />
                     </div>
 
                     {expanded && (
@@ -837,8 +840,8 @@
                             <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs text-gray-600">
                                 <DetailRow label="員工編號" value={person.id} />
                                 <DetailRow label="身分類別" value={person.category} />
-                                <DetailRow label="用餐調查" value={person.food} />
-                                <DetailRow label="衣服尺寸" value={person.size} highlight />
+                                <DetailRow label="晚宴桌次" value={person.table} highlight />
+                                <DetailRow label="衣服尺寸" value={person.size} />
                                 {person.extra_pay && <div className="col-span-2 text-red-500 font-bold bg-red-50 p-2 rounded-lg text-center mt-1">需補差額：${person.extra_pay}</div>}
                             </div>
                         </div>
@@ -1098,7 +1101,7 @@
                         {subTab === 'suao' && (
                             <div className="space-y-6 animate-enter">
                                 {/* 懶人包卡片 */}
-                                <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl p-6 text-white shadow-floating">
+                                <div className="relative overflow-hidden bg-gradient-to-br from-[#5e4a6f] to-[#8e7b9f] rounded-3xl p-6 text-white shadow-floating">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-[50px] opacity-20"></div>
                                     <h3 className="font-bold text-xl mb-3 flex items-center gap-2 relative z-10">
                                         <Icon name="Star" size={20} className="text-yellow-300" /> 蘇澳一日遊懶人包
@@ -1171,72 +1174,6 @@
                                 </div>
                             </div>
                         )}
-                    </div>
-                </div>
-            );
-        };
-
-        const CourseSection = ({ title, icon, courses, variant = 'primary', defaultExpanded = true }) => {
-            const [expanded, setExpanded] = useState(defaultExpanded);
-            
-            const styles = variant === 'primary' ? {
-                iconContainer: 'bg-[#f4eff6] text-[#5e4a6f]',
-                badge: 'bg-[#5e4a6f]',
-                link: 'text-[#5e4a6f] bg-[#f4eff6] border-gray-100 hover:bg-[#d3b4d3] hover:text-white'
-            } : {
-                iconContainer: 'bg-blue-50 text-blue-600',
-                badge: 'bg-blue-500',
-                link: 'text-blue-600 bg-blue-50 border-blue-100 hover:bg-blue-200'
-            };
-
-            return (
-                <div className="bg-white rounded-2xl shadow-card border border-gray-50 overflow-hidden mb-4">
-                    <div 
-                        className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
-                        onClick={() => setExpanded(!expanded)}
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${styles.iconContainer}`}>
-                                <Icon name={icon} size={20} />
-                            </div>
-                            <h3 className="font-bold text-gray-800 text-base">{title}</h3>
-                        </div>
-                        <div className={`text-gray-400 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}>
-                            <Icon name="ChevronDown" size={20} />
-                        </div>
-                    </div>
-                    
-                    <div className={`transition-all duration-300 ease-in-out ${expanded ? 'max-h-[3000px] opacity-100 border-t border-gray-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="p-4 space-y-4 bg-[#faf9fb]">
-                            {courses.map((course, idx) => (
-                                <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                                    <div className="flex justify-between items-start mb-3 border-b border-gray-50 pb-2">
-                                        <div className={`text-xs font-bold text-white px-2 py-1 rounded-lg shadow-sm ${styles.badge}`}>{course.date}</div>
-                                        {course.tms !== "無" && (
-                                            <a 
-                                                href={`https://edu.ntuh.gov.tw/course/${course.tms}`} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer" 
-                                                className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-colors cursor-pointer flex items-center gap-1 ${styles.link}`}
-                                            >
-                                                TMS: {course.tms} <Icon name="ExternalLink" size={10} />
-                                            </a>
-                                        )}
-                                    </div>
-                                    <h4 className="font-bold text-gray-800 text-base mb-2 leading-snug">{course.topic}</h4>
-                                    <div className="space-y-1">
-                                        <div className="flex items-start gap-2 text-xs text-gray-600">
-                                            <Icon name="User" size={12} className="mt-0.5 text-gray-400" />
-                                            <span>{course.speaker}</span>
-                                        </div>
-                                        <div className="flex items-start gap-2 text-xs text-gray-500">
-                                            <Icon name="MapPin" size={12} className="mt-0.5 text-gray-400" />
-                                            <span>{course.unit}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 </div>
             );
