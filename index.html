@@ -31,11 +31,16 @@
                         secondary: '#8e7b9f',
                         accent: '#d3b4d3',
                         surface: '#ffffff',
-                        background: '#f4f6f8',
+                        background: '#f8f9fc',
                     },
                     boxShadow: {
-                        'soft': '0 2px 8px rgba(0,0,0,0.04)',
-                        'card': '0 2px 12px -2px rgba(0, 0, 0, 0.05)',
+                        'soft': '0 8px 30px rgba(0,0,0,0.04)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'floating': '0 20px 40px -5px rgba(94, 74, 111, 0.15)',
+                        'glow': '0 0 20px rgba(211, 180, 211, 0.3)',
+                    },
+                    backgroundImage: {
+                        'hero-gradient': 'linear-gradient(135deg, #5e4a6f 0%, #8e7b9f 100%)',
                     }
                 }
             }
@@ -44,19 +49,19 @@
 
     <style>
         body {
-            background-color: #f4f6f8;
-            color: #333333;
+            background-color: #f8f9fc;
+            color: #4a4a4a;
             -webkit-tap-highlight-color: transparent;
             font-family: 'Noto Sans TC', sans-serif;
             overflow-x: hidden;
         }
         
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(8px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-enter {
-            animation: slideUp 0.3s ease-out forwards;
+            animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -64,6 +69,13 @@
 
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
         .pt-safe { padding-top: env(safe-area-inset-top); }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -92,7 +104,7 @@
                 host: "林頌然 教授",
                 items: [
                   { time: "11:00", endTime: "11:30", topic: "醫師與醫事人員科學家之倫理素養", speaker: "蔡甫昌 主任", dept: "倫理中心" },
-                  { time: "11:30", endTime: "12:00", topic: "讓教學被看見：臨床教師教學研究之路", speaker: "楊志偉 副主任", dept: "教學部" }
+                  { time: "11:30", endTime: "12:00", topic: "讓教學被看見：臨床教師教學研究之路--從教學現場到學術成果", speaker: "楊志偉 副主任", dept: "教學部" }
                 ]
               },
               { time: "12:00", endTime: "13:30", topic: "午餐時間", location: "住宿大樓 2F 餐廳", type: "food" },
@@ -160,45 +172,260 @@
           }
         ];
 
-        // --- 資料來源: 名冊 (預設測試資料) ---
+        // --- 資料來源: 名冊 (修正對應: Table=I, Food=J) ---
         const INITIAL_ROSTER_DATA = [
           { category: "受邀長官", hospital: "總院", id: "002904", name: "余忠仁", dept: "院長室", title: "院長", bus: "自理", room: "不住宿", table: "主5", food: "不吃", diet: "葷", size: "L", extra_pay: "" },
           { category: "受邀長官", hospital: "總院", id: "002849", name: "高嘉宏", dept: "院長室", title: "副院長", bus: "自理", room: "不住宿", table: "不吃晚宴", food: "D1/不晚", diet: "葷", size: "L", extra_pay: "" },
           { category: "受邀講師", hospital: "總院", id: "007802", name: "李宜家", dept: "醫學研究部", title: "教授", bus: "B01", room: "C-12", table: "A-01", food: "D1/D2", diet: "葷", size: "XL", extra_pay: "3900" },
+          { category: "受邀講師", hospital: "總院", id: "018768", name: "林孟暐", dept: "外科部", title: "教授", bus: "自理", room: "B-04-1", table: "A-02", food: "D1/D2", diet: "葷", size: "XL", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "102067", name: "林欣儀", dept: "藥劑部", title: "藥師", bus: "B06", room: "不住宿", table: "不吃晚宴", food: "不吃", diet: "不吃", size: "S", extra_pay: "" },
+          { category: "受邀講師", hospital: "總院", id: "009015", name: "林頌然", dept: "醫學研究部", title: "教授", bus: "A01", room: "C-14", table: "A-03", food: "D1/D2", diet: "葷", size: "M", extra_pay: "3900" },
+          { category: "受邀講師", hospital: "總院", id: "112264", name: "張育瑄", dept: "教學部", title: "主治醫師", bus: "B02", room: "C-04", table: "B-01", food: "D1/D2", diet: "葷", size: "M", extra_pay: "" },
           { category: "參加學員", hospital: "新竹", id: "G04420", name: "黃亮恩", dept: "內科部", title: "主治醫師", bus: "B12", room: "C-21", table: "G-03", food: "D1/D2", diet: "葷", size: "L", extra_pay: "3900" },
-          { category: "參加學員", hospital: "總院", id: "030405", name: "葉慧英", dept: "基因醫學部", title: "醫事檢驗師", bus: "C08", room: "A-02-2", table: "G-07", food: "D1/D2", diet: "素", size: "L", extra_pay: "" }
+          { category: "參加學員", hospital: "雲林", id: "Y05773", name: "黃柏翰", dept: "耳鼻喉部", title: "主治醫師", bus: "A09", room: "B-08-2", table: "G-04", food: "D1/D2", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "癌醫", id: "A03182", name: "楊向國", dept: "婦產部", title: "主治醫師", bus: "C26", room: "A-14-1", table: "G-05", food: "D1/D2", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "癌醫", id: "A01092", name: "葉政亞", dept: "影像醫學部", title: "醫事放射師", bus: "自理", room: "不住宿", table: "G-06", food: "D1", diet: "葷", size: "2XL", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "030405", name: "葉慧英", dept: "基因醫學部", title: "醫事檢驗師", bus: "C08", room: "A-02-2", table: "G-07", food: "D1/D2", diet: "葷", size: "L", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "113492", name: "廖愷欣", dept: "藥劑部", title: "藥師", bus: "C20", room: "A-11-1", table: "G-08", food: "D1/D2", diet: "葷", size: "M", extra_pay: "" },
+          { category: "參加學員", hospital: "總院", id: "030605", name: "劉彥德", dept: "影像醫學部", title: "醫事放射師", bus: "C04", room: "B-09-1", table: "G-09", food: "D1/D2", diet: "葷", size: "2XL", extra_pay: "" }
         ];
 
-        // --- 資料來源: 線上課程 ---
+        // --- 資料來源: 線上課程 (AI) ---
         const COURSES_DATA = [
-            { date: "115/01/29", topic: "生成式 AI 在生醫資料分析的應用", unit: "長庚大學資訊工程系", speaker: "李季青 副教授", tms: "200332" },
-            { date: "114/10/02", topic: "加速研究，繁瑣的部分用開源工具搭配AI搞定", unit: "台大醫院資訊室", speaker: "莊又丞 資訊工程師", tms: "194653" },
-            { date: "114/09/26", topic: "淺談AI世代的學術工具：從文獻回顧到分析撰寫", unit: "台大醫院教學部", speaker: "劉政亨 醫師", tms: "194460" },
-            { date: "114/09/16", topic: "與AI共研未來：學術研究的資料搜尋、新素養與新倫理", unit: "臺灣大學圖書館", speaker: "范蔚敏 組員", tms: "193928" },
-            { date: "114/04/15", topic: "論文寫作用AI：省力還是幫倒忙", unit: "台大醫院 醫學研究部", speaker: "黃舒宜 助理研究員", tms: "187276" }
+            {
+                date: "115/01/29",
+                topic: "生成式 AI 在生醫資料分析的應用：效率、再現性與資料安全",
+                unit: "長庚大學資訊工程系",
+                speaker: "李季青 副教授",
+                tms: "200332"
+            },
+            {
+                date: "114/10/02",
+                topic: "加速研究，繁瑣的部分用開源工具搭配AI搞定",
+                unit: "台大醫院資訊室",
+                speaker: "莊又丞 資訊工程師",
+                tms: "194653"
+            },
+            {
+                date: "114/09/26",
+                topic: "淺談AI世代的學術工具：從文獻回顧到分析撰寫",
+                unit: "台大醫院教學部",
+                speaker: "劉政亨 醫師",
+                tms: "194460"
+            },
+            {
+                date: "114/09/16",
+                topic: "與AI共研未來：學術研究的資料搜尋、新素養與新倫理",
+                unit: "臺灣大學圖書館學科服務組",
+                speaker: "范蔚敏 組員",
+                tms: "193928"
+            },
+            {
+                date: "114/04/15",
+                topic: "論文寫作用AI：省力還是幫倒忙",
+                unit: "台大醫院 醫學研究部",
+                speaker: "黃舒宜 助理研究員",
+                tms: "187276"
+            }
         ];
 
+        // --- 資料來源: 線上課程 (論文與期刊) ---
         const JOURNAL_COURSES_DATA = [
-            { date: "113/03/22", topic: "與期刊編輯面對面系列講座-How to publish with Nature Portfolio", unit: "Nature", speaker: "Laurie Dempsey", tms: "171553" },
-            { date: "110/10/19", topic: "Open access與投稿期刊選擇", unit: "台大醫院醫學研究部", speaker: "黃舒宜 助理研究員", tms: "159013" },
-            { date: "110/04/22", topic: "論文寫作新手村: 基本寫作技巧及常見問題解析", unit: "台大醫院醫學研究部", speaker: "黃舒宜 助理研究員", tms: "85232" }
+            {
+                date: "113/03/22",
+                topic: "與期刊編輯面對面系列講座-How to publish with Nature Portfolio",
+                unit: "Nature",
+                speaker: "Laurie Dempsey、Ching-yu Huang",
+                tms: "171553"
+            },
+            {
+                date: "110/10/19",
+                topic: "Open access與投稿期刊選擇",
+                unit: "台大醫院醫學研究部",
+                speaker: "黃舒宜 助理研究員",
+                tms: "159013"
+            },
+            {
+                date: "110/04/22",
+                topic: "論文寫作新手村: 基本寫作技巧及常見問題解析",
+                unit: "台大醫院醫學研究部",
+                speaker: "黃舒宜 助理研究員",
+                tms: "85232"
+            }
         ];
 
-        // --- 資料來源: 研究資源 ---
+        // --- 資料來源: 研究資源 (總院共研研究員) ---
         const RESEARCHERS_DATA = [
-            { name: "蔡芷季", title: "助理研究員（組長）", specialty: "分子生物學、生物化學", service: "負責督導實驗研究組與第二共同研究室管理，並管理基因定序暨生化核心及顯微影像核心", office: "第二共研" },
-            { name: "林郁里", title: "院聘研究員", specialty: "生物化學、病毒免疫學", service: "負責第七共同研究室管理，支援免疫研究核心及小動物實驗核心", office: "第七共研" },
-            { name: "莊雅婷", title: "院聘副研究員", specialty: "分子免疫學、細胞免疫學", service: "負責第三共同研究室管理及流式細胞分選暨分析核心", office: "第三共研" },
-            { name: "張晉豪", title: "院聘副研究員", specialty: "生物統計學、流行病學", service: "提供臨床資料統計分析、臨床試驗與研究設計及收案諮詢，協助 REDCap 線上表單建置", office: "公衛大樓 8F" },
-            { name: "黃舒宜", title: "院聘助理研究員", specialty: "細胞學、分子生物學", service: "提供英文論文寫作與投稿期刊評估諮詢，以及研究計畫寫作評估諮詢", office: "第六共研" },
-            { name: "莊書琳", title: "院聘助理研究員", specialty: "流行病學、生物統計", service: "督導台大醫療體系整合資料庫，提供申請案件諮詢輔導、資料分析方法與研究設計建議", office: "公衛大樓 8F" }
+            {
+                name: "蔡芷季",
+                title: "助理研究員（組長）",
+                specialty: "分子生物學、生物化學。",
+                service: "負責督導實驗研究組與第二共同研究室管理，並管理基因定序暨生化核心及顯微影像核心，提供分子生物學與生物化學相關實驗設計諮詢。",
+                office: "第二共研"
+            },
+            {
+                name: "林郁里",
+                title: "院聘研究員",
+                specialty: "生物化學、病毒免疫學、疫苗學、癌症免疫學。",
+                service: "負責第七共同研究室管理，並支援免疫研究核心及小動物實驗核心，提供免疫研究及小動物實驗相關諮詢服務。",
+                office: "第七共研"
+            },
+            {
+                name: "莊雅婷",
+                title: "院聘副研究員",
+                specialty: "分子免疫學、細胞免疫學、流式細胞實驗與技術。",
+                service: "負責第三共同研究室管理及流式細胞分選暨分析核心，提供免疫學研究實驗設計諮詢。",
+                office: "第三共研"
+            },
+            {
+                name: "許家郎",
+                title: "院聘副研究員",
+                specialty: "生物資訊學、系統生物學、網路生物學、次世代定序。",
+                service: "提供高通量實驗數據之生物資訊分析服務。",
+                office: "第二共研"
+            },
+            {
+                name: "張晉豪",
+                title: "院聘副研究員",
+                specialty: "生物統計學、流行病學、臨床試驗、遺傳流行病學、藥物流行病學。",
+                service: "提供臨床資料統計分析、臨床試驗與研究設計及收案諮詢，協助 REDCap 線上表單建置、研究資料品質管理、Case Report Form 設計，以及論文審查與統計相關意見回覆。",
+                office: "公衛大樓 8F"
+            },
+            {
+                name: "黃舒宜",
+                title: "院聘助理研究員",
+                specialty: "細胞學、分子生物學、發生生物學、遺傳學。",
+                service: "提供英文論文寫作與投稿期刊評估諮詢，以及研究計畫寫作評估諮詢。",
+                office: "第六共研"
+            },
+            {
+                name: "莊書琳",
+                title: "院聘助理研究員",
+                specialty: "流行病學、生物統計、癌症篩檢。",
+                service: "督導台大醫療體系整合資料庫，提供申請案件諮詢輔導、資料分析方法與研究設計建議，以及臨床資料數據處理服務。",
+                office: "公衛大樓 8F"
+            },
+            {
+                name: "范邁儀",
+                title: "院聘助理研究員",
+                specialty: "毛囊再生與毛囊幹細胞、色素再生、光生物調解作用。",
+                service: "協助細胞治療品保系統建立與審閱，提供細胞治療研究設計諮詢，籌辦說明會及計畫招募，並協助品管系統認證及維運。",
+                office: "第九共研、細胞治療中心"
+            },
+            {
+                name: "邱懷萱",
+                title: "院聘助理研究員",
+                specialty: "藥物分析、代謝體學分析、生醫質譜分析。",
+                service: "負責第十共同研究室管理，管理藥物濃度分析研究核心與代謝體學實驗核心，提供相關研究諮詢服務。",
+                office: "第十共研"
+            },
+            {
+                name: "吳侑靜",
+                title: "院聘助理研究員",
+                specialty: "斑馬魚發育生物學、分子生物相關實驗、二代及三代定序技術。",
+                service: "督導基因定序暨生化核心，協助基因庫製作與品質評估，並提供試劑詢價與研究需求諮詢。",
+                office: "第二共研"
+            },
+            {
+                name: "張怡雯",
+                title: "院聘助理研究員",
+                specialty: "蛋白質體學與多體學、分子與細胞生物學、腫瘤學與癌症免疫治療、缺血性中風與神經新生。",
+                service: "提供蛋白質定性與定量分析、轉譯後修飾分析，以及蛋白質體研究實驗設計與諮詢。",
+                office: "第二共研"
+            },
+            {
+                name: "張乃文",
+                title: "院聘助理研究員",
+                specialty: "生物資訊學、生醫文獻探勘、機器學習於生物資訊應用。",
+                service: "提供高通量實驗數據分析與生物資訊分析服務。",
+                office: "第二共研"
+            },
+            {
+                name: "羅翊菱",
+                title: "院聘助理研究員",
+                specialty: "細菌致病機制、微生物培養體學、腸道微生物學。",
+                service: "負責微菌治療研發中心管理，提供腸道菌分離、純化、培養與鑑定，微菌植入術生物材料製備，以及微菌體學實驗與轉譯研究諮詢。",
+                office: "第十一共研"
+            },
+            {
+                name: "游文萱",
+                title: "院聘博士後研究員",
+                specialty: "生物資訊學、系統生物學、網路生物學。",
+                service: "提供高通量數據之生物資訊分析。",
+                office: "第二共研"
+            },
+            {
+                name: "王挺安",
+                title: "院聘博士後研究員",
+                specialty: "流行病學、生物統計、數據分析。",
+                service: "負責台大醫療體系醫療整合資料庫申請案件受理與諮詢，並提供臨床資料數據處理及主題式資料庫建置。",
+                office: "公衛大樓 8F"
+            },
+            {
+                name: "蔡亦為",
+                title: "院聘博士後研究員",
+                specialty: "腦梗塞與神經細胞新生、心肌梗塞與心肌細胞再生、非編碼核糖核酸、實驗動物模型（囓齒類及果蠅）。",
+                service: "負責第八共同研究室管理，支援小動物實驗核心，提供小動物實驗模型建立與研究諮詢。",
+                office: "第八共研"
+            }
         ];
         
+        // --- 資料來源: 研究服務 (歸納自研究員資料) ---
         const RESEARCH_SERVICES_DATA = [
-            { title: "論文與計畫諮詢", desc: "英文論文寫作評估、投稿期刊選擇、計畫書諮詢。AI浪潮席捲全球，論文不應是AI生成內容的拼貼，而要能反映作者的學術視角。本諮詢協助精準定位亮點。", icon: "FileText", offices: ["第六共研"] },
-            { title: "生物統計與資料庫", desc: "臨床試驗設計、統計分析、醫療資料庫申請、數據處理", icon: "BarChart", offices: ["公衛大樓 8F"] },
-            { title: "基因定序與生物資訊", desc: "次世代定序、高通量數據分析、系統生物學", icon: "Database", offices: ["第二共研"] },
-            { title: "動物實驗模型", desc: "小動物實驗 (囓齒類、果蠅)、斑馬魚、疾病模型建立", icon: "Bug", offices: ["第二共研", "第七共研", "第八共研"] }
+            {
+                title: "論文與計畫諮詢",
+                desc: "英文論文寫作評估、投稿期刊選擇、計畫書諮詢。\nAI浪潮席捲全球，論文不應是AI生成內容的拼貼，而要能反映作者的學術視角。本諮詢服務能幫助您精準定位研究亮點，透過討論強化邏輯論述，有效應對審查意見，建立長期寫作能力。",
+                icon: "FileText",
+                offices: ["第六共研"]
+            },
+            {
+                title: "生物統計與資料庫",
+                desc: "臨床試驗設計、統計分析、醫療資料庫申請、數據處理",
+                icon: "BarChart",
+                offices: ["公衛大樓 8F"]
+            },
+            {
+                title: "基因定序與生物資訊",
+                desc: "次世代定序、高通量數據分析、系統生物學",
+                icon: "Database",
+                offices: ["第二共研"]
+            },
+            {
+                title: "分子生物與生化",
+                desc: "分子生物學實驗、蛋白質定性定量、轉譯後修飾",
+                icon: "Beaker",
+                offices: ["第二共研"]
+            },
+            {
+                title: "免疫研究與流式細胞",
+                desc: "流式細胞分選、癌症免疫學、病毒免疫、疫苗開發",
+                icon: "Activity",
+                offices: ["第三共研", "第七共研"]
+            },
+            {
+                title: "動物實驗模型",
+                desc: "小動物實驗 (囓齒類、果蠅)、斑馬魚、疾病模型建立",
+                icon: "Bug",
+                offices: ["第二共研", "第七共研", "第八共研"]
+            },
+            {
+                title: "藥物分析與代謝體",
+                desc: "藥物濃度分析、生醫質譜、代謝體學實驗",
+                icon: "Layers",
+                offices: ["第十共研"]
+            },
+            {
+                title: "微菌叢與腸道菌",
+                desc: "腸道菌分離培養、微菌植入術製備、致病機制研究",
+                icon: "Disc",
+                offices: ["第十一共研"]
+            },
+            {
+                title: "細胞治療與再生醫學",
+                desc: "細胞治療品管、GTP實驗室、幹細胞研究",
+                icon: "Zap",
+                offices: ["第九共研"]
+            }
         ];
 
         // --- SVG 圖示 (Pure SVG with <g>) ---
@@ -327,66 +554,73 @@
 
         // --- 頁面: 首頁 ---
         const HomeView = ({ onChangeTab }) => (
-            <div className="p-5 pt-6 pb-6 space-y-6 animate-enter">
-                {/* Hero Block - 清爽明亮版 */}
-                <div className="bg-[#5e4a6f] rounded-3xl p-6 text-white shadow-card relative overflow-hidden">
+            <div className="p-5 pt-6 pb-6 space-y-5 animate-enter">
+                {/* 緊湊版 Hero Block，包含活動對象 */}
+                <div className="bg-[#5e4a6f] rounded-3xl p-5 text-white shadow-card relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-[60px] opacity-10 -mr-10 -mt-10"></div>
                     
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-xs font-bold mb-4 border border-white/20">
-                        <Icon name="Star" size={14} /> 活動資訊
-                    </div>
-                    
-                    <h2 className="text-2xl font-bold mb-6 leading-tight">
-                        新進主治醫師與<br/><span className="text-[#d3b4d3]">醫事人員研究營</span>
+                    <h2 className="text-[20px] font-bold mb-4 leading-snug relative z-10">
+                        115年度臺大醫療體系<br/>
+                        <span className="text-[#d3b4d3]">新進主治醫師與醫事人員研究營</span>
                     </h2>
                     
-                    <div className="bg-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-sm border border-white/10">
+                    <div className="bg-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-sm border border-white/10 relative z-10">
+                        {/* 時間 */}
                         <div className="flex items-start gap-3">
-                            <div className="mt-0.5 text-[#d3b4d3]"><Icon name="Clock" size={18} /></div>
-                            <div>
-                                <div className="text-[11px] text-gray-300 font-bold tracking-wider mb-0.5">活動日期</div>
-                                <div className="text-sm font-medium">115年3月6日 (五) ~ 3月7日 (六)</div>
-                            </div>
+                            <Icon name="Clock" size={16} className="text-[#d3b4d3] shrink-0 mt-0.5" />
+                            <div className="text-[13px] font-medium opacity-95 leading-snug">3月6日 (五) ~ 3月7日 (六)</div>
                         </div>
-                        <div className="h-px w-full bg-white/10"></div>
+                        
+                        {/* 地點 */}
                         <div className="flex items-start gap-3">
-                            <div className="mt-0.5 text-[#d3b4d3]"><Icon name="MapPin" size={18} /></div>
-                            <div>
-                                <div className="text-[11px] text-gray-300 font-bold tracking-wider mb-0.5">活動地點</div>
-                                <a href="https://www.google.com/maps/search/?api=1&query=瓏山林蘇澳冷熱泉度假飯店" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:text-[#d3b4d3] transition-colors flex items-center gap-1">
-                                    瓏山林蘇澳冷熱泉度假飯店 <Icon name="ExternalLink" size={12} className="opacity-70"/>
-                                </a>
+                            <Icon name="MapPin" size={16} className="text-[#d3b4d3] shrink-0 mt-0.5" />
+                            <a href="https://www.google.com/maps/search/?api=1&query=瓏山林蘇澳冷熱泉度假飯店" target="_blank" rel="noopener noreferrer" className="text-[13px] font-medium hover:text-[#d3b4d3] transition-colors leading-snug flex items-center gap-1">
+                                蘇澳瓏山林冷熱泉度假飯店 <Icon name="ExternalLink" size={10} className="opacity-70" />
+                            </a>
+                        </div>
+                        
+                        {/* 整合：活動對象 */}
+                        <div className="flex items-start gap-3 border-t border-white/10 pt-3">
+                            <Icon name="Users" size={16} className="text-[#d3b4d3] shrink-0 mt-0.5" />
+                            <div className="text-[13px] text-gray-200 leading-relaxed font-medium">
+                                總、分院一年內新進主治醫師與醫事科部推薦具研究潛力之醫事研究人員
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* 內部注意警示 */}
-                <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+                <div className="bg-orange-50 border border-orange-100 rounded-2xl p-3.5 flex items-start gap-3 shadow-sm">
                     <div className="text-orange-500 bg-white p-1 rounded-full shadow-sm shrink-0"><Icon name="Shield" size={16} /></div>
-                    <p className="text-xs text-orange-700 font-medium leading-relaxed mt-0.5">
-                        此網頁含參訓學員個資，僅供院內相關人員閱覽，請勿外流。
+                    <p className="text-xs text-orange-700 font-bold leading-relaxed mt-0.5">
+                        此網頁含參訓學員個資，僅供院內閱覽。
                     </p>
                 </div>
 
-                {/* 主要按鈕區 (Primary Calls to Action) */}
-                <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => onChangeTab('agenda')} className="bg-white py-5 px-4 rounded-2xl shadow-card border border-gray-100 flex flex-col items-center justify-center gap-3 active:scale-[0.98] transition-all">
-                        <div className="w-12 h-12 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center">
-                            <Icon name="Calendar" size={24} />
+                {/* 快捷按鈕 (3 欄並排) */}
+                <div className="grid grid-cols-3 gap-3">
+                    <button onClick={() => onChangeTab('agenda')} className="bg-white py-4 px-2 rounded-2xl shadow-card border border-gray-100 flex flex-col items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                        <div className="w-11 h-11 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center">
+                            <Icon name="Calendar" size={22} />
                         </div>
-                        <span className="font-bold text-gray-800 text-[15px]">查看議程</span>
+                        <span className="font-bold text-gray-800 text-sm">查看議程</span>
                     </button>
-                    <button onClick={() => onChangeTab('roster')} className="bg-[#5e4a6f] py-5 px-4 rounded-2xl shadow-card flex flex-col items-center justify-center gap-3 active:scale-[0.98] transition-all text-white">
-                        <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                            <Icon name="Search" size={24} />
+                    <button onClick={() => onChangeTab('roster')} className="bg-[#5e4a6f] py-4 px-2 rounded-2xl shadow-card flex flex-col items-center justify-center gap-2 active:scale-[0.98] transition-all text-white">
+                        <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center">
+                            <Icon name="Search" size={22} />
                         </div>
-                        <span className="font-bold text-[15px]">查詢名冊</span>
+                        <span className="font-bold text-sm">查詢名冊</span>
                     </button>
+                    <a href="https://medresearchntuh.github.io/2026030607_115ntuhcampsign/" target="_blank" rel="noopener noreferrer" className="bg-blue-500 py-4 px-2 rounded-2xl shadow-card flex flex-col items-center justify-center gap-2 active:scale-[0.98] transition-all text-white hover:bg-blue-600">
+                        <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center">
+                            <Icon name="Edit3" size={22} />
+                        </div>
+                        <span className="font-bold text-sm whitespace-nowrap">線上簽到</span>
+                    </a>
                 </div>
 
                 {/* 簡單聯絡資訊 */}
-                <div className="bg-gray-100 rounded-2xl p-5 text-center">
+                <div className="bg-gray-100 rounded-2xl p-5 text-center mt-2">
                     <div className="text-xs font-bold text-gray-500 mb-2">主辦單位：台大醫院醫學研究部</div>
                     <div className="text-xs text-gray-400">承辦人：陳巧瑜管理師 (分機 263254)</div>
                 </div>
@@ -397,24 +631,24 @@
         const AgendaView = () => {
             const [day, setDay] = useState(0);
             return (
-                <div className="animate-enter min-h-screen bg-[#f8f9fc]">
-                    {/* 清爽型 Tab 切換 */}
-                    <div className="sticky top-[64px] z-40 bg-[#f8f9fc]/95 backdrop-blur-md px-5 py-3">
-                        <div className="flex bg-gray-200/70 p-1 rounded-xl shadow-inner">
+                <div className="pb-28 pt-16 animate-enter min-h-screen bg-gray-50">
+                    {/* Sticky Tabs */}
+                    <div className="sticky top-[60px] z-40 bg-gray-50/95 backdrop-blur px-4 pb-2 pt-2">
+                        <div className="bg-gray-200/80 p-1 rounded-2xl flex relative">
                             {AGENDA_DATA.map((d, i) => (
                                 <button 
                                     key={i} 
                                     onClick={() => setDay(i)} 
-                                    className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex flex-col items-center justify-center leading-tight ${day === i ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                    className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 relative z-10 ${day === i ? 'text-[#5e4a6f] shadow-sm bg-white' : 'text-gray-500 hover:text-gray-700'}`}
                                 >
-                                    <span>{d.label}</span>
-                                    <span className={`text-[10px] ${day === i ? 'text-gray-500 font-medium' : 'font-normal opacity-70'}`}>{d.date}</span>
+                                    <span className="block leading-none mb-0.5">{d.label}</span>
+                                    <span className="text-[10px] font-normal opacity-70">{d.date}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    <div className="px-5 py-2 pb-6 space-y-4">
+                    <div className="px-5 py-4 space-y-5">
                         {AGENDA_DATA[day].items.map((item, index) => (
                             <AgendaItem key={index} block={item} isLast={index === AGENDA_DATA[day].items.length - 1} />
                         ))}
@@ -426,47 +660,56 @@
         const AgendaItem = ({ block, isLast }) => {
             const [expanded, setExpanded] = useState(false);
             
-            // 實心線條時間軸
+            // Timeline dot logic
             const Dot = () => (
-                <div className="flex flex-col items-center mr-4 w-4 shrink-0">
-                    <div className={`w-3 h-3 rounded-full mt-1.5 ${block.section ? 'bg-[#5e4a6f] ring-4 ring-[#f4eff6]' : 'bg-gray-300'}`}></div>
-                    {!isLast && <div className="w-0.5 flex-1 bg-gray-200 mt-2 rounded-full"></div>}
+                <div className="absolute left-0 top-0 bottom-0 flex flex-col items-center w-6">
+                    <div className={`w-3 h-3 rounded-full border-2 z-10 ${block.section ? 'bg-[#5e4a6f] border-[#5e4a6f]' : 'bg-white border-gray-300'}`}></div>
+                    {!isLast && <div className="w-0.5 flex-1 bg-gray-200 mt-1"></div>}
                 </div>
             );
 
             if (block.section) {
                 return (
-                    <div className="flex">
+                    <div className="relative pl-8">
                         <Dot />
-                        <div className="flex-1 pb-4">
-                            <div className="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
-                                <div className="p-4 active:bg-gray-50 transition-colors cursor-pointer" onClick={() => setExpanded(!expanded)}>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="text-[10px] font-bold text-white bg-[#5e4a6f] px-2 py-0.5 rounded-md tracking-wider">專題演講</span>
-                                        <Icon name={expanded ? "ChevronUp" : "ChevronDown"} size={18} className="text-gray-400" />
+                        <div className="bg-white rounded-2xl shadow-card border border-gray-50 overflow-hidden transition-all duration-300 hover:shadow-md">
+                            <div className="p-4 flex justify-between items-start cursor-pointer active:bg-gray-50/50" onClick={() => setExpanded(!expanded)}>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <span className="bg-[#5e4a6f] text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm tracking-wide">專題演講</span>
+                                        {block.title && <span className="text-xs text-gray-500 font-medium line-clamp-1">{block.title}</span>}
                                     </div>
-                                    <h3 className="font-bold text-gray-800 text-[17px] mb-1.5 leading-snug">{block.section}</h3>
-                                    {block.title && <p className="text-sm text-gray-600 mb-2 font-medium">{block.title}</p>}
-                                    <div className="inline-flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-lg text-xs font-medium text-gray-600">
-                                        <Icon name="User" size={14} className="text-gray-400"/> 主持：{block.host}
-                                    </div>
+                                    <h3 className="font-bold text-gray-800 text-lg mb-1.5 leading-tight">{block.section}</h3>
+                                    <p className="text-xs text-gray-500 flex items-center gap-1.5 bg-gray-50 inline-block px-2 py-1 rounded-lg">
+                                        <Icon name="User" size={12} /> 主持：<span className="font-medium text-gray-700">{block.host}</span>
+                                    </p>
                                 </div>
-                                
-                                {/* 展開內容 */}
-                                <div className={`bg-gray-50/50 border-t border-gray-100 transition-all duration-300 ease-in-out ${expanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                                    <div className="p-4 space-y-4">
-                                        {block.items.map((sub, idx) => (
-                                            <div key={idx} className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                                                <div className="text-xs font-bold text-[#5e4a6f] mb-1">{sub.time} - {sub.endTime}</div>
-                                                <div className="text-[15px] font-bold text-gray-800 mb-1.5 leading-snug">{sub.topic}</div>
+                                <div className={`text-gray-400 p-1 rounded-full bg-gray-50 transition-transform duration-300 ${expanded ? 'rotate-180 bg-gray-100' : ''}`}>
+                                    <Icon name="ChevronDown" size={18} />
+                                </div>
+                            </div>
+                            
+                            {/* Expandable Content */}
+                            <div className={`bg-[#faf9fb] border-t border-gray-100 transition-all duration-500 ease-in-out ${expanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="p-4 space-y-4">
+                                    {block.items.map((sub, idx) => (
+                                        <div key={idx} className="flex gap-3 relative">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#d3b4d3] mt-2 shrink-0"></div>
+                                            <div>
+                                                <div className="flex items-baseline gap-2 mb-0.5">
+                                                    <span className="text-xs font-bold text-[#5e4a6f] bg-white px-1.5 py-0.5 rounded border border-[#f4eff6] shadow-sm">{sub.time}</span>
+                                                    <span className="text-[10px] text-gray-400">至 {sub.endTime}</span>
+                                                </div>
+                                                <div className="text-sm font-bold text-gray-800 mb-1 leading-snug">{sub.topic}</div>
                                                 {sub.speaker && (
-                                                    <div className="text-xs text-gray-500 font-medium">
+                                                    <div className="text-xs text-gray-500 flex items-center gap-1.5 mt-1">
+                                                        <span className="w-4 h-0.5 bg-gray-300 rounded-full"></span>
                                                         {sub.speaker} {sub.dept && <span className="text-gray-400">({sub.dept})</span>}
                                                     </div>
                                                 )}
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -474,48 +717,49 @@
                 );
             }
 
-            // 一般行程
+            // Normal Item Styling
             let iconName = "Clock"; 
-            let bgColor = "bg-white";
-            let textColor = "text-gray-700";
-            let iconBox = "bg-gray-100 text-gray-500";
+            let itemBg = "bg-white";
+            let iconBg = "bg-gray-100 text-gray-500";
             
-            if (block.type === 'food') { iconName = "Utensils"; iconBox = "bg-orange-50 text-orange-500"; }
-            if (block.type === 'logistic') { iconName = "Bus"; iconBox = "bg-blue-50 text-blue-500"; }
-            if (block.type === 'break') { bgColor = "bg-transparent border-none shadow-none px-0 py-2"; textColor="text-gray-500"; iconBox="bg-transparent text-gray-400 p-0"; }
+            if (block.type === 'food') { iconName = "Utensils"; iconBg = "bg-orange-100 text-orange-500"; }
+            if (block.type === 'logistic') { iconName = "Bus"; iconBg = "bg-blue-100 text-blue-500"; }
+            if (block.type === 'break') { iconBg = "bg-[#f4eff6] text-[#5e4a6f]"; itemBg = "bg-[#fcfafc]"; }
 
             return (
-                <div className="flex">
+                <div className="relative pl-8">
                     <Dot />
-                    <div className={`flex-1 pb-4`}>
-                        <div className={`${bgColor} ${block.type !== 'break' ? 'rounded-2xl shadow-sm border border-gray-100 p-4' : ''} flex gap-4 items-center`}>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${iconBox}`}>
-                                <Icon name={iconName} size={20} />
+                    <div className={`${itemBg} rounded-2xl p-4 flex gap-4 items-center shadow-card border border-gray-50`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg} shadow-inner`}>
+                            <Icon name={iconName} size={20} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-baseline mb-1">
+                                <span className="font-bold text-gray-800 text-base truncate pr-2">{block.topic}</span>
+                                <span className="text-xs font-bold text-gray-400 whitespace-nowrap">{block.time}</span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <div className={`font-bold text-[15px] truncate mb-0.5 ${textColor}`}>{block.topic}</div>
-                                <div className="text-xs font-bold text-gray-400">{block.time} {block.endTime && `- ${block.endTime}`}</div>
-                                {block.location && (
-                                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-1 truncate">
-                                        <Icon name="MapPin" size={12} className="shrink-0" /> {block.location}
-                                    </div>
-                                )}
-                            </div>
+                            {block.location && (
+                                <div className="text-xs text-gray-500 flex items-center gap-1.5 truncate">
+                                    <Icon name="MapPin" size={12} className="shrink-0" /> {block.location}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             );
         };
 
-        // --- 頁面: 名冊 ---
+        // 4. 名冊頁
         const RosterView = () => {
             const [search, setSearch] = useState("");
             const [tab, setTab] = useState("all");
-            const [rosterData, setRosterData] = useState([]);
+            // 替換為真實資料
+            const [rosterData, setRosterData] = useState([]); // INITIAL_ROSTER_DATA for testing
             const [loading, setLoading] = useState(true);
 
+            // Fetch data from GAS
             useEffect(() => {
-                fetch('https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec')
+                fetch('https://script.google.com/macros/s/AKfycbzFO8lChUB9zL0nJY3nOXT2TSP_rTpsnIci1C-1dtYUeKMeOfBhzsEJW1MSbEOWuOBP9Q/exec') // Replace with YOUR_GAS_URL
                     .then(res => res.json())
                     .then(data => {
                          setRosterData(data);
@@ -524,6 +768,7 @@
                     .catch(err => {
                         console.error('Failed to fetch roster:', err);
                         setLoading(false);
+                        // Fallback to initial data if fetch fails (optional)
                         setRosterData(INITIAL_ROSTER_DATA); 
                     });
             }, []);
@@ -542,41 +787,40 @@
             }, [search, tab, rosterData]);
 
             return (
-                <div className="pb-6 pt-16 animate-enter min-h-screen">
-                    <div className="sticky top-[64px] z-30 bg-[#f8f9fc] px-5 py-2">
-                        {/* 實體搜尋框 */}
-                        <div className="relative mb-3">
-                            <div className="absolute left-4 top-3.5 text-gray-400"><Icon name="Search" size={20} /></div>
+                <div className="pb-28 pt-16 animate-enter min-h-screen">
+                    <div className="sticky top-[60px] z-30 bg-[#f8f9fc] px-4 pb-2 pt-2">
+                        {/* Search Input - Floating Style */}
+                        <div className="relative shadow-floating rounded-2xl bg-white mb-4">
+                            <div className="absolute left-4 top-3.5 text-[#5e4a6f] opacity-50"><Icon name="Search" size={20} /></div>
                             <input 
                                 type="text" 
-                                placeholder="搜尋姓名、員工編號、單位..." 
-                                className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[#5e4a6f] focus:ring-1 focus:ring-[#5e4a6f] outline-none text-[15px] transition-all placeholder-gray-400 shadow-sm" 
+                                placeholder="搜尋姓名、員工編號..." 
+                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-none ring-1 ring-transparent focus:ring-2 focus:ring-[#d3b4d3] outline-none text-gray-700 bg-transparent transition-all placeholder-gray-400" 
                                 value={search} 
                                 onChange={e => setSearch(e.target.value)} 
                             />
                         </div>
                         
-                        {/* 藥丸型過濾按鈕 */}
-                        <div className="flex gap-2">
-                            <button onClick={() => setTab('all')} className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-all ${tab === 'all' ? 'bg-[#5e4a6f] text-white border-[#5e4a6f]' : 'bg-white text-gray-500 border-gray-200 active:bg-gray-50'}`}>全部名冊</button>
-                            <button onClick={() => setTab('accommodation')} className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-all ${tab === 'accommodation' ? 'bg-[#5e4a6f] text-white border-[#5e4a6f]' : 'bg-white text-gray-500 border-gray-200 active:bg-gray-50'}`}>住宿名單</button>
+                        {/* Filter Tabs */}
+                        <div className="flex bg-gray-200/80 p-1 rounded-xl mb-1">
+                            <button onClick={() => setTab('all')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${tab === 'all' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>全部名冊</button>
+                            <button onClick={() => setTab('accommodation')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${tab === 'accommodation' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>住宿名單</button>
                         </div>
                     </div>
 
-                    <div className="px-5 space-y-3 mt-3 pb-6">
+                    <div className="px-4 space-y-3 mt-2">
                         {loading ? (
                             <div className="flex flex-col justify-center items-center py-20 gap-3">
                                 <div className="w-8 h-8 border-4 border-gray-200 border-t-[#5e4a6f] rounded-full animate-spin"></div>
-                                <p className="text-gray-400 text-sm font-medium animate-pulse tracking-wide">載入資料中...</p>
+                                <p className="text-gray-400 text-xs font-medium animate-pulse tracking-wide">載入中...</p>
                             </div>
                         ) : (
                             <>
-                                <div className="text-xs font-bold text-gray-400 mb-2 pl-1">共 {filtered.length} 筆資料</div>
                                 {filtered.map((p, i) => <RosterCard key={i} person={p} />)}
                                 {filtered.length === 0 && (
-                                    <div className="text-center py-16">
-                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300"><Icon name="Search" size={32} /></div>
-                                        <p className="text-gray-500 font-medium text-sm">沒有找到符合的資料</p>
+                                    <div className="text-center py-12">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300"><Icon name="Search" size={30} /></div>
+                                        <p className="text-gray-400 font-medium">沒有找到符合的資料</p>
                                     </div>
                                 )}
                             </>
@@ -589,160 +833,165 @@
         const RosterCard = ({ person }) => {
             const [expanded, setExpanded] = useState(false);
             return (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200">
-                    <div className="p-4 cursor-pointer active:bg-gray-50" onClick={() => setExpanded(!expanded)}>
-                        <div className="flex justify-between items-start mb-3">
-                            <div>
-                                <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2 mb-1">
-                                    {person.name}
-                                    <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md">{person.title}</span>
-                                </h3>
-                                <p className="text-xs text-gray-500 font-medium">{person.hospital} • {person.dept}</p>
+                <div className="bg-white p-5 rounded-2xl shadow-card border border-gray-50 flex flex-col gap-4 transition-all duration-200 active:scale-[0.98]" onClick={() => setExpanded(!expanded)}>
+                    <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f4eff6] to-white flex items-center justify-center text-[#5e4a6f] font-bold text-lg border border-[#f4eff6]">
+                                {person.name[0]}
                             </div>
-                            <div className="flex flex-col gap-1.5 items-end">
-                                {person.diet !== '葷' && <span className="text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-md">素食</span>}
-                                {person.extra_pay && <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">補差額</span>}
+                            <div>
+                                <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                                    {person.name}
+                                    <span className="text-[10px] font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full border border-gray-200">{person.title}</span>
+                                </h3>
+                                <p className="text-xs text-gray-400 font-medium mt-0.5">{person.hospital} • {person.dept}</p>
                             </div>
                         </div>
                         
-                        <div className="grid grid-cols-3 gap-2">
-                            <InfoPill icon="Bus" label="交通" value={person.bus} />
-                            <InfoPill icon="Bed" label="房號" value={person.room} highlight={person.room !== '不住宿'} />
-                            <InfoPill icon="Utensils" label="晚宴" value={person.table} highlight={person.table !== '不吃晚宴'}/>
+                        <div className="flex flex-col gap-1.5 items-end">
+                            {person.diet !== '葷' && <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-md border border-green-100 shadow-sm flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>素食</span>}
+                            {person.extra_pay && <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md border border-red-100 shadow-sm flex items-center gap-1"><span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>補差額</span>}
                         </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2">
+                        <InfoItem icon="Bus" label="交通" value={person.bus} />
+                        <InfoItem icon="Bed" label="房號" value={person.room} highlight={person.room !== '不住宿'} />
+                        <InfoItem icon="Utensils" label="晚宴桌次" value={person.table} />
                     </div>
 
-                    {/* 詳細資料展開 */}
-                    <div className={`bg-gray-50/80 border-t border-gray-100 transition-all duration-300 ease-in-out ${expanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                        <div className="p-4 grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
-                            <DetailRow label="員工編號" value={person.id} />
-                            <DetailRow label="身分類別" value={person.category} />
-                            <DetailRow label="晚宴桌次" value={person.table} highlight />
-                            <DetailRow label="衣服尺寸" value={person.size} />
-                            {person.extra_pay && <div className="col-span-2 text-red-600 font-bold bg-white border border-red-100 p-2.5 rounded-xl text-center mt-1 shadow-sm">需補差額：${person.extra_pay}</div>}
+                    {expanded && (
+                        <div className="mt-1 pt-4 border-t border-dashed border-gray-200 animate-enter">
+                            <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs text-gray-600">
+                                <DetailRow label="員工編號" value={person.id} />
+                                <DetailRow label="身分類別" value={person.category} />
+                                <DetailRow label="用餐調查" value={person.food} />
+                                <DetailRow label="衣服尺寸" value={person.size} highlight />
+                                {person.extra_pay && <div className="col-span-2 text-red-500 font-bold bg-red-50 p-2 rounded-lg text-center mt-1">需補差額：${person.extra_pay}</div>}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             );
         };
 
-        const InfoPill = ({ icon, label, value, highlight }) => (
-            <div className={`px-2 py-2 rounded-xl flex flex-col items-center justify-center text-center ${highlight ? 'bg-[#f4eff6]' : 'bg-gray-50'}`}>
-                <Icon name={icon} size={16} className={`mb-1 ${highlight ? 'text-[#5e4a6f]' : 'text-gray-400'}`} />
-                <span className="text-[10px] text-gray-500 mb-0.5">{label}</span>
-                <span className={`text-xs font-bold truncate w-full ${highlight ? 'text-[#5e4a6f]' : 'text-gray-700'}`}>{value}</span>
+        const InfoItem = ({ icon, label, value, highlight }) => (
+            <div className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center transition-colors ${highlight ? 'bg-[#fcfafc] border-[#f4eff6]' : 'bg-gray-50 border-gray-100'}`}>
+                <Icon name={icon} size={16} className="text-[#5e4a6f] mb-1.5 opacity-80" />
+                <span className="text-[10px] text-gray-400 mb-0.5">{label}</span>
+                <span className="text-xs font-bold text-gray-700 line-clamp-1">{value}</span>
             </div>
         );
 
         const DetailRow = ({ label, value, highlight }) => (
-            <div className="flex flex-col gap-0.5">
-                <span className="text-[11px] text-gray-500 font-medium">{label}</span>
-                <span className={`font-bold text-[14px] ${highlight ? 'text-[#5e4a6f]' : 'text-gray-800'}`}>{value}</span>
+            <div className="flex justify-between border-b border-gray-50 pb-1">
+                <span className="text-gray-400">{label}</span>
+                <span className={`font-medium ${highlight ? 'text-[#5e4a6f]' : 'text-gray-700'}`}>{value}</span>
             </div>
         );
 
-        // --- 頁面: 行前 ---
+        // 5. 行前須知
         const PreTripView = () => (
-            <div className="p-5 pt-20 pb-6 animate-enter space-y-4">
-                <InfoCard icon="Info" title="注意事項">
-                    <ul className="list-disc list-outside ml-5 space-y-2 text-sm text-gray-600 leading-relaxed marker:text-gray-300">
+            <div className="p-5 pt-20 pb-28 animate-enter space-y-6">
+                <InfoSection icon="Info" title="注意事項">
+                    <ul className="list-decimal list-outside ml-4 space-y-2 text-sm text-gray-600 leading-relaxed">
                         <li>請攜帶健保卡、個人隨身藥品與個人盥洗備品。</li>
                         <li>飯店提供冷熱泉設施，請自備泳衣泳帽。</li>
                         <li>課程期間請將手機轉為靜音，會場提供充電與Wifi。</li>
                         <li>3月份宜蘭氣候多變，請攜帶雨具及保暖衣物。</li>
                         <li>院方核准公假受訓，上課與結訓須依規定簽到退。</li>
                     </ul>
-                </InfoCard>
+                </InfoSection>
 
-                <InfoCard icon="Bus" title="行車宣導">
-                    <ul className="list-disc list-outside ml-5 space-y-2 text-sm text-gray-600 leading-relaxed marker:text-gray-300">
+                <InfoSection icon="Bus" title="行車宣導">
+                    <ul className="list-decimal list-outside ml-4 space-y-2 text-sm text-gray-600 leading-relaxed">
                         <li>請依車次搭乘，下於車上發放房卡與行李吊牌。</li>
                         <li>回程人滿即發車，下車點依當日路況而定。</li>
                     </ul>
-                </InfoCard>
+                </InfoSection>
 
-                <InfoCard icon="FileText" title="差假規定">
-                    <div className="space-y-3 text-sm text-gray-600">
-                        <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                <InfoSection icon="FileText" title="差假規定">
+                    <div className="space-y-4 text-sm text-gray-600">
+                        <div className="bg-gray-50 p-3 rounded-lg">
                             <span className="font-bold block text-gray-800 mb-1">1. 上班時間受訓</span>
                             參訓人員受訓期間如遇上班時間，依規定核予公假前往。
                         </div>
-                        <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                        <div className="bg-gray-50 p-3 rounded-lg">
                             <span className="font-bold block text-gray-800 mb-1">2. 非上班時間受訓</span>
                             如於非上班時間受訓則以實際參訓時數辦理公假補休。
                         </div>
                     </div>
-                </InfoCard>
+                </InfoSection>
             </div>
         );
 
-        const InfoCard = ({ icon, title, children }) => (
-            <div className="bg-white rounded-2xl shadow-card border border-gray-100 p-5">
-                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
-                    <div className="w-8 h-8 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center">
-                        <Icon name={icon} size={18} />
-                    </div>
-                    <h3 className="font-bold text-gray-800 text-[17px]">{title}</h3>
-                </div>
+        const InfoSection = ({ icon, title, children }) => (
+            <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5">
+                <h3 className="font-bold text-[#5e4a6f] text-lg mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                    <div className="p-1.5 bg-[#f4eff6] rounded-lg"><Icon name={icon} size={18} /></div>
+                    {title}
+                </h3>
                 {children}
             </div>
         );
 
-        // --- 頁面: 會後 ---
+        // 6. 會後專區
         const PostTripView = () => (
-            <div className="p-5 pt-20 pb-6 animate-enter space-y-4">
-                {/* 簽到退 */}
-                <div className="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex items-center justify-between active:scale-[0.98] transition-transform">
+            <div className="p-5 pt-20 pb-28 animate-enter space-y-4">
+                {/* 1. 簽到退 (一致的白色卡片風格) */}
+                <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 flex items-center justify-between transition-transform active:scale-[0.99]">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                            <Icon name="Edit3" size={24} />
+                        <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                            <Icon name="Edit3" size={22} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-800 text-base mb-0.5">活動線上簽到退</h4>
-                            <p className="text-xs text-gray-500">請依規定時間完成</p>
+                            <h4 className="font-bold text-gray-800 text-sm mb-0.5">活動線上簽到退</h4>
+                            <p className="text-[11px] text-gray-400">請依規定時間完成</p>
                         </div>
                     </div>
-                    <a href="https://medresearchntuh.github.io/2026030607_115ntuhcampsign/" target="_blank" className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-blue-700 transition-colors whitespace-nowrap">
+                    <a href="https://medresearchntuh.github.io/2026030607_115ntuhcampsign/" target="_blank" className="px-5 py-2.5 bg-blue-500 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-blue-600 transition-colors whitespace-nowrap">
                         前往簽到
                     </a>
                 </div>
 
-                {/* 滿意度調查 */}
-                <div className="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex items-center justify-between active:scale-[0.98] transition-transform">
+                {/* 2. 滿意度調查 (一致的白色卡片風格，移除特別 highlight) */}
+                <div className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 flex items-center justify-between transition-transform active:scale-[0.99]">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-[#f4eff6] text-[#5e4a6f] flex items-center justify-center shrink-0">
-                            <Icon name="FileText" size={24} />
+                            <Icon name="FileText" size={22} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-800 text-base mb-0.5">活動滿意度調查</h4>
-                            <p className="text-xs text-gray-500">協助我們辦得更好</p>
+                            <h4 className="font-bold text-gray-800 text-sm mb-0.5">活動滿意度調查</h4>
+                            <p className="text-[11px] text-gray-400">協助我們辦得更好</p>
                         </div>
                     </div>
-                    <a href="https://medresearchntuh.github.io/20260307_115ntuhcampsurvey/" target="_blank" className="px-4 py-2 bg-[#5e4a6f] text-white text-sm font-bold rounded-xl shadow-sm hover:bg-primaryHover transition-colors whitespace-nowrap">
+                    <a href="https://medresearchntuh.github.io/20260307_115ntuhcampsurvey/" target="_blank" className="px-5 py-2.5 bg-[#5e4a6f] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-[#4a3a58] transition-colors whitespace-nowrap">
                         前往填寫
                     </a>
                 </div>
 
-                {/* 檔案下載 Grid */}
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="bg-white rounded-2xl shadow-card p-5 border border-gray-100 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3 text-gray-600 border border-gray-100">
-                            <Icon name="Camera" size={22} />
+                {/* 3 & 4. 照片與講義下載 (Grid Layout) */}
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                    {/* 照片 */}
+                    <div className="bg-white rounded-2xl shadow-card p-5 border border-gray-50 flex flex-col items-center text-center">
+                        <div className="w-14 h-14 bg-[#f4eff6] rounded-full flex items-center justify-center mb-3 text-[#5e4a6f] shadow-inner">
+                            <Icon name="Camera" size={24} />
                         </div>
                         <h4 className="font-bold text-gray-800 text-sm mb-1">活動照片下載</h4>
-                        <p className="text-[10px] text-gray-400 mb-3">2周工作天上傳</p>
-                        <button disabled className="w-full py-2 bg-gray-100 text-gray-400 rounded-lg text-xs font-bold cursor-not-allowed">
+                        <p className="text-[10px] text-gray-400 mb-4">2周工作天上傳</p>
+                        <button disabled className="w-full py-2.5 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold cursor-not-allowed">
                             尚未開放
                         </button>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-card p-5 border border-gray-100 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3 text-gray-600 border border-gray-100">
-                            <Icon name="BookOpen" size={22} />
+                    {/* 講義 */}
+                    <div className="bg-white rounded-2xl shadow-card p-5 border border-gray-50 flex flex-col items-center text-center">
+                        <div className="w-14 h-14 bg-[#f4eff6] rounded-full flex items-center justify-center mb-3 text-[#5e4a6f] shadow-inner">
+                            <Icon name="BookOpen" size={24} />
                         </div>
                         <h4 className="font-bold text-gray-800 text-sm mb-1">活動講義下載</h4>
-                        <p className="text-[10px] text-gray-400 mb-3">2周工作天上傳</p>
-                        <button disabled className="w-full py-2 bg-gray-100 text-gray-400 rounded-lg text-xs font-bold cursor-not-allowed">
+                        <p className="text-[10px] text-gray-400 mb-4">2周工作天上傳</p>
+                        <button disabled className="w-full py-2.5 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold cursor-not-allowed">
                             尚未開放
                         </button>
                     </div>
@@ -750,32 +999,33 @@
             </div>
         );
 
-        // --- 頁面: 資源 ---
+        // 7. 更多資源 (Resources View) - 整合觀光分頁
         const ResourcesView = () => {
             const [subTab, setSubTab] = useState('research'); // research, courses, suao
+            // nested tab for research
             const [researchSubTab, setResearchSubTab] = useState('services'); // services, researchers
 
             return (
-                <div className="pb-6 pt-16 animate-enter min-h-screen">
-                    <div className="sticky top-[64px] z-30 bg-[#f8f9fc]/95 backdrop-blur-md px-5 py-3">
-                        <div className="flex bg-gray-200/70 p-1 rounded-xl shadow-inner mb-3">
-                            <button onClick={() => setSubTab('research')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${subTab === 'research' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>院內研究</button>
-                            <button onClick={() => setSubTab('courses')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${subTab === 'courses' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>線上課程</button>
-                            <button onClick={() => setSubTab('suao')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${subTab === 'suao' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>蘇澳觀光</button>
+                <div className="pb-28 pt-16 animate-enter min-h-screen">
+                    <div className="sticky top-[60px] z-30 bg-[#f8f9fc] px-4 pb-2 pt-2">
+                        <div className="flex bg-gray-200/80 p-1 rounded-xl mb-4">
+                            <button onClick={() => setSubTab('research')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'research' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>研究資源</button>
+                            <button onClick={() => setSubTab('courses')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'courses' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>線上課程</button>
+                            <button onClick={() => setSubTab('suao')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-300 ${subTab === 'suao' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}>蘇澳懶人包</button>
                         </div>
                         
                         {subTab === 'research' && (
-                            <div className="flex justify-center">
-                                <div className="inline-flex bg-gray-200/50 p-1 rounded-lg">
+                            <div className="flex justify-center mb-4">
+                                <div className="inline-flex bg-gray-100 p-0.5 rounded-lg">
                                     <button 
                                         onClick={() => setResearchSubTab('services')} 
-                                        className={`px-5 py-1.5 text-xs font-bold rounded-md transition-all ${researchSubTab === 'services' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}
+                                        className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${researchSubTab === 'services' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}
                                     >
                                         研究服務
                                     </button>
                                     <button 
                                         onClick={() => setResearchSubTab('researchers')} 
-                                        className={`px-5 py-1.5 text-xs font-bold rounded-md transition-all ${researchSubTab === 'researchers' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}
+                                        className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${researchSubTab === 'researchers' ? 'bg-white text-[#5e4a6f] shadow-sm' : 'text-gray-500'}`}
                                     >
                                         共研研究員
                                     </button>
@@ -784,7 +1034,7 @@
                         )}
                     </div>
 
-                    <div className="px-5 pb-6">
+                    <div className="px-5 pb-5">
                         {subTab === 'research' && (
                             <div className="animate-enter space-y-3">
                                 {researchSubTab === 'services' ? (
@@ -806,34 +1056,36 @@
                                     ))
                                 ) : (
                                     RESEARCHERS_DATA.map((researcher, idx) => (
-                                        <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                                            <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-50">
-                                                <div className="w-10 h-10 bg-[#f4eff6] rounded-full flex items-center justify-center text-[#5e4a6f] font-bold text-lg border border-[#f4eff6]">
+                                        <div key={idx} className="bg-white rounded-2xl shadow-card border border-gray-50 p-5 hover:shadow-md transition-shadow">
+                                            <div className="flex items-start gap-4">
+                                                <div className="w-12 h-12 bg-[#f4eff6] rounded-full flex items-center justify-center shrink-0 text-[#5e4a6f] font-bold text-lg">
                                                     {researcher.name[0]}
                                                 </div>
-                                                <div>
+                                                <div className="flex-1">
                                                     <a 
                                                         href="https://www.ntuh.gov.tw/LARD/Fpage.action?muid=5826&fid=6344" 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
-                                                        className="font-bold text-[17px] text-gray-800 hover:text-[#5e4a6f] transition-colors flex items-center gap-1.5"
+                                                        className="inline-flex items-center gap-1 font-bold text-lg text-[#5e4a6f] hover:underline decoration-[#d3b4d3] underline-offset-2 mb-1"
                                                     >
-                                                        {researcher.name} <Icon name="ExternalLink" size={14} className="text-gray-400" />
+                                                        {researcher.name} <Icon name="ExternalLink" size={14} className="opacity-70" />
                                                     </a>
-                                                    <div className="text-[11px] font-bold text-gray-500">{researcher.title}</div>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <div className="flex items-start gap-2 text-xs">
-                                                    <span className="font-bold text-[#8e7b9f] shrink-0 w-10">專長</span>
-                                                    <span className="text-gray-600">{researcher.specialty}</span>
-                                                </div>
-                                                <div className="flex items-start gap-2 text-xs">
-                                                    <span className="font-bold text-gray-400 shrink-0 w-10">服務</span>
-                                                    <span className="text-gray-500">{researcher.service}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1 mt-2 text-xs font-bold text-gray-400 bg-gray-50 w-fit px-2 py-1 rounded-md border border-gray-100">
-                                                    <Icon name="MapPin" size={12} /> {researcher.office}
+                                                    <div className="text-sm font-medium text-gray-500 mb-2">{researcher.title}</div>
+                                                    
+                                                    <div className="space-y-2 mt-3">
+                                                        <div className="flex gap-2">
+                                                            <span className="text-xs font-bold text-[#8e7b9f] shrink-0 mt-0.5">專長：</span>
+                                                            <span className="text-xs text-gray-600 leading-relaxed">{researcher.specialty}</span>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <span className="text-xs font-bold text-gray-400 shrink-0 mt-0.5">服務：</span>
+                                                            <span className="text-xs text-gray-500 leading-relaxed">{researcher.service}</span>
+                                                        </div>
+                                                        <div className="flex gap-2 pt-1 border-t border-gray-50 mt-1">
+                                                            <Icon name="MapPin" size={12} className="text-blue-400 mt-0.5" />
+                                                            <span className="text-xs text-blue-500 font-medium">{researcher.office}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
