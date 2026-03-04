@@ -749,7 +749,7 @@
             );
         };
 
-        // 4. 名冊頁
+        // --- 頁面: 名冊 ---
         const RosterView = () => {
             const [search, setSearch] = useState("");
             const [tab, setTab] = useState("all");
@@ -774,10 +774,17 @@
             }, []);
 
             const filtered = useMemo(() => {
-                let res = rosterData;
+                let res = [...rosterData]; // 複製一份陣列以避免修改原始資料
                 if (tab === 'accommodation') {
+                    // 過濾出有住宿且房號不是"不住宿"的人員
                     res = res.filter(p => p.room && p.room !== '不住宿' && p.room !== '');
-                    res.sort((a, b) => a.room.localeCompare(b.room));
+                    // 依照房號排序，同房號的會排在一起
+                    res.sort((a, b) => {
+                        // 處理房號可能為 null 或 undefined 的情況
+                        const roomA = a.room || "";
+                        const roomB = b.room || "";
+                        return roomA.localeCompare(roomB, 'zh-TW'); // 使用 localeCompare 進行字串排序
+                    });
                 }
                 if (search) {
                     const lower = search.toLowerCase();
